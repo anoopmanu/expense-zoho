@@ -41,6 +41,13 @@ urlpatterns = [
 
     path('new_items',views.new_items,name='new_items'),
     path('items_list',views.items_list,name='items_list'),
+    path('expense',views.expense,name='expense'),
+    
+    path('edit_expense/<int:pk>/',views.edit_expense,name='edit_expense'),
+    path('expense_overview/<int:expense_id>/',views.expense_overview,name='expense_overview'),
+    path('create_expense',views.create_expense,name='create_expense'),
+    path('create_expense1',views.create_expense1,name='create_expense1'),
+    path('showexpense',views.showexpense,name='showexpense'),
     path('create_item',views.create_item,name='create_item'),
     path('itemsoverview/<int:pk>',views.itemsoverview,name='itemsoverview'),
     path('edititems/<int:pr>',views.edititems,name='edititems'),

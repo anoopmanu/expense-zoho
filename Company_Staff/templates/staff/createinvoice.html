@@ -1730,6 +1730,7 @@ function calc_total() {
     $('.itemTaxAmount').each(function () {
         taxamount += parseFloat($(this).val());
     });
+    
     $('#sub_total').val(total.toFixed(2));
     $('#tax_amount').val(taxamount.toFixed(2));
     var ship = parseFloat($("#ship").val());

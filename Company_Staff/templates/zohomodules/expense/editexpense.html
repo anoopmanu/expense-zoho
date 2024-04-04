@@ -1,0 +1,912 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<style>
+  .modal{
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .form-group{
+    width: 40%;
+  }
+
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .col-25, .col-75, input[type=submit] {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    input[type=text], select, textarea {
+      width: 100%;
+    }
+  }
+
+  .dropdown input,
+  .dropdown button {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+
+  .dropdown.open input,
+  .dropdown.open button {
+    display: block;
+  }
+
+  .row a{
+    color: rgb(218, 164, 48);
+    font-size: 12px;
+  }
+
+  .table th a{
+    color:rgb(218, 164, 48);
+    font-size: 11px;
+    margin-left: 100px;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
+
+  .item{
+    height: auto;
+  }
+
+  .labels{
+    color: white; 
+    font-size:2.5vh; 
+    font-weight: bolder;
+  }
+
+  .btn-outline-warning:hover {
+    color: black !important;
+    font-weight: bold;
+  }
+  .modal{
+      z-index: 9999;
+      overflow: scroll;
+    }
+    /* width */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .hide {
+        display: none;
+    }
+    .hidden {
+      display: none;
+  }
+  .selectize-input.full {
+    background-color:rgb(45, 44, 44) !important;
+    color: white !important;
+    border: 1px solid rgba(246, 241, 241, 0.35) !important;
+   }
+   
+    .popup-0 {
+      height: 17rem;
+      width: 20rem;
+      background-color: rgb(3, 3, 3);
+      border-radius: 1rem;
+      position: absolute;
+      margin-bottom:70rem;
+      left: 0%;
+      transform: translate(-50%, -50%)scale(0.1);
+      text-align: center;
+      padding: 0 5rem 5 rem;
+      color: black;
+      
+      visibility: hidden;
+      transform: translate(-50%, -50%)scale(0.1);
+
+    }
+
+    .open-popup-3 {
+      margin-top: -30rem;
+      visibility: visible;
+      transform: translate(-50%, -50%)scale(1);
+      transition: transform 0.4s, top 0.4s;
+      margin-left: 40rem;
+    background-color: #000;
+    }
+    ::placeholder {
+      color: rgb(238, 230, 230); /* Change this to the desired color */
+    }
+    label {
+      color:white; /* Change this to the desired color */
+    }
+    input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="date"] {
+  color: white; /* Change this to the desired color */
+}
+</style>
+
+<div class="body-wrapper">
+  <div class="container-fluid">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
+        <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'bank_list' %}" class="text-warning-emphasis">Banking</a></li>
+        <li class="breadcrumb-item" aria-current="page">Create</li>
+      </ol>
+    </nav>
+      <div class="row mt-5">
+          <div class="col-md-12">
+            <div class="card mb-5 p-5" style="background-color: black; border-radius: 1vh;">
+              <h1 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Edit &nbsp; Expense</h1><br>
+              <hr class="text-warning">
+              <form action="{% url 'create_expense1' %}" method="post" enctype="multipart/form-data"id="myForm">
+                {% csrf_token %}
+                <div class="row">
+                  <label for="date" class="col-md-3 p-3 labels">Expense Date</label>
+                  <div class="col-md-6 p-3">
+                    <input type="date" class="form-control text-white bg-black" value="{{edit.date }}" id="" name="" required>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <label for="name" class="col-md-3 p-3 labels">Expense Account</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="account" name="account">
+                  </div>
+                </div>
+          
+                <div class="row">
+                  <label for="ac_no" class="col-md-3 p-3 labels">Expense Type</label>
+                  <div class="col-md-6 p-3">
+                    <select class="form-control "  id="expense_type" style="color: white;"  name="expense_type">
+                      <option style="background-color: black;"  value="" >Select Expense Type</option>
+                      <option style="background-color: black;"  value="goods">Goods</option>
+                      <option style="background-color: black;"  value="service">Service</option>
+                  </select>
+                  </div>
+                </div>
+
+                <div class="row" id="hsnField" style="display: none;">
+                  <label for="name" class="col-md-3 p-3 labels">Hsn code</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="hsn_code" name="hsn_code">
+                  </div>
+                </div>
+
+
+
+
+               
+              <div class="row" id="sacField" style="display: none;">
+                <label for="name" class="col-md-3 p-3 labels">sac code</label>
+                <div class="col-md-6 p-3">
+                  <input type="text" class="form-control text-white bg-black" id="sac_code" name="sac_code">
+                </div>
+              </div>
+          
+               
+                
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Expense Number</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="expense_number" name="expense_number">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Referense Number</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="referense_number" name="referense_number">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="opn_bal" class="col-md-3 p-3 labels">Amount</label>
+                  <div class="col-md-6 p-3">
+                    <div class="input-group">
+                      <div class="input-group-append">
+                        <select class="form-control form-select text-white bg-black" id="amount" name="amount">
+                          <option value="inr">INR</option>
+                          <option value="usd" selected>USD</option>
+                          <option value="srl" selected>SRL</option>
+                        </select>
+                      </div>
+                      <input type="number" class="form-control text-white bg-black" id="amount" name="amount">
+                    </div>
+                  </div>
+                </div>
+          
+                <div class="row">
+                  <label for="ifsc" class="col-md-3 p-3 labels">Tax Rate</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="tax_rate" name="tax_rate">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="ifsc" class="col-md-3 p-3 labels">Payment Type</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="payment_type" name="payment_type">
+                  </div>
+                </div>
+                <br>
+                <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
+                <hr class="text-warning">
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Select Vendor</label>
+                  
+                  <div class="col-md-6 p-3">
+                    <select name=" vendor_name" id=" vendor_name" value="{{edit.vendor_name }}" class="form-control" required>
+                      <option style="color: white;">Select vendor </option>
+                      {% for cust in v %}
+                      <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name }}</option>
+                      {% endfor %}
+                  </select>
+                   
+                 
+                  </div>
+                  <div class="col-2">
+                    <a class="btn btn-outline-warning py-2" role="button" style="cursor: pointer;" data-toggle="modal" data-target="#bank_creation" style="height: 38px; margin-right: 3px;">+</a>
+                </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Email</label>
+                  <div class="col-md-6 p-3">
+                    <input type="email"  class="form-control text-white bg-black" id="vendor_email" value="{{edit.vendor_email }}"  name="vendor_email">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">GST in</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_gstin" name="vendor_gstin">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">GST Type</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_gst_type" name="vendor_gst_type">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Sourse of supply</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_sourse_of_supply" name="vendor_sourse_of_supply">
+                  </div>
+                </div>
+                <div class="row ">
+                  <label for="branch" class="col-md-3 p-3 labels">Billing Address</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_billing_address" name="vendor_billing_address">
+                  </div>
+                </div>
+                <br>
+                <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Customer &nbsp; Details</h5>
+                <hr class="text-warning">
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Select Customer</label>
+                  <div  class="col-md-6 p-3">
+                    <select name="customer_name" id="customer_name" class="form-control" required>
+                      <option  value="0">Select customer </option>
+                      {% for cust in c %}
+                      <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name }}</option>
+                      {% endfor %}
+                     
+                  </select>
+                  <button type="button" data-toggle="modal" data-target="#newCustomer" class="btn btn-outline-warning ml-1">+</button>
+
+                    
+                  </div>
+                  
+                </div>
+               
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">Email</label>
+                  <div class="col-md-6 p-3">
+                    <input type="email" class="form-control text-white bg-black" id="customer_email" name="customer_email">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">GST in</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="customer_gstin" name="customer_gstin">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">GST Type</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="customer_gst_type" name="customer_gst_type">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="branch" class="col-md-3 p-3 labels">price of supply</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="customer_price_of_supply" name="customer_price_of_supply">
+                  </div>
+                </div>
+                <div class="row ">
+                  <label for="branch" class="col-md-3 p-3 labels">Billing Address</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="customer_billing_address" name="customer_billing_address">
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="avatar" class="col-md-3 p-3 labels">Choose File:</label>
+                  <div class="col-md-6 p-3">
+                  <input type="file" id="avatar" name="avatar" class="form-control">
+                </div>
+                </div>
+                <div class="row ">
+                  <label for="branch" class="col-md-3 p-3 labels">Note</label>
+                  <div class="col-md-6 p-3">
+                    <input type="text" class="form-control text-white bg-black" id="note" name="note">
+                  </div>
+                </div>
+                <br>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" id="agree" name="agree" class="form-check-input" required>
+                  <label class="form-check-label" for="agree">I agree to the terms and conditions</label>
+                </div>
+                
+                
+
+                <br>
+                <input type="submit" class="btn save_btn mt-2 my-4 mx-2" style="background-color: chocolate; color: white;" value="SAVE" id="save">
+                <input class="btn save_btn my-4 mt-2" style="background-color: chocolate; color: white;" type="reset" value="RESET" id="reset">
+              </form>
+            </div>
+          </div>
+      </div>
+  </div>
+</div>
+<div class="modal fade" id="newCustomer">
+  <div class="modal-dialog modal-xl">
+      <div class="modal-content" style="background-color: #0f1419;">
+          <div class="modal-header">
+              <h5 class="m-3 text-white">New Customer</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <div class=" p-3">
+                  <form method="post" id="newCustomerForm">
+                      {% csrf_token %}
+                      <div class="row mt-3">
+                          <div class="col-md-4">
+                              <label for="title">Title</label>
+                              <select name="title" id="title" style="background-color: #060a0e;color: white;" class="form-control">
+                                  <option value="Mr">Mr</option>
+                                  <option value="Mrs">Mrs</option>
+                                  <option value="Miss">Miss</option>
+                                  <option value="Ms">Ms</option>
+                              </select>
+                              <div class="valid-feedback">Looks good!</div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="firstName">First Name*</label>
+                              <input type="text" class="form-control" id="firstName" name="first_name" required style="background-color: #060a0e;color: white;">
+                              <div class="valid-feedback">Looks good!</div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="lastName">Last Name*</label>
+                              <input type="text" class="form-control" id="lastName" name="last_name" required style="background-color: #060a0e;color: white;">
+                              <div class="valid-feedback">Looks good!</div>
+                          </div>
+                      </div>
+  
+                      <div class="row mt-3">
+                          <div class="col-md-4">
+                              <label for="companyName">Company</label>
+                              <input type="text" class="form-control" id="companyName" name="company_name" style="background-color: #060a0e;color: white;">
+                              <div class="valid-feedback">Looks good!</div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="location">Location</label>
+                              <input type="text" class="form-control" id="location" name="location" style="background-color: #060a0e;color: white;">
+                              <div class="valid-feedback">Looks good!</div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="custPlaceOfSupply">Place of Supply*</label>
+                              <select class="custom-select form-control" id="custPlaceOfSupply" name="place_of_supply" style="background-color: #060a0e; color: white;" required>
+                                  <option selected value="">Select Place of Supply</option>
+                                  <option  value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+                                  <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
+                                  <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
+                                  <option value="[AS]-Assam">[AS] Assam</option>
+                                  <option value="[BR]-Bihar">[BR] Bihar</option>
+                                  <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
+                                  <option value="[CG]-Chhattisgarh">[CG] Chhattisgarh</option>
+                                  <option value="[DNH]-Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+                                  <option value="[DD]-Damn anad Diu">[DD] Damn anad Diu</option>
+                                  <option value="[DL]-Delhi">[DL] Delhi</option>
+                                  <option value="[GA]-Goa">[GA] Goa</option>
+                                  <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
+                                  <option value="[HR]-Haryana">[HR] Haryana</option>
+                                  <option value="[HP]-Himachal Predesh">[HP] Himachal Predesh</option>
+                                  <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+                                  <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
+                                  <option value="[KA]-Karnataka">[KA] Karnataka</option>
+                                  <option value="[KL]-Kerala">[KL] Kerala</option>
+                                  <option value="[LA]-Ladakh">[LA] Ladakh</option>
+                                  <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
+                                  <option value="[MP]-Madhya Predesh">[MP] Madhya Predesh</option>
+                                  <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
+                                  <option value="[MN]-Manipur">[MN] Manipur</option>
+                                  <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
+                                  <option value="[MZ]-Mizoram">[MZ] Mizoram</option>
+                                  <option value="[NL]-Nagaland">[NL] Nagaland</option>
+                                  <option value="[OD]-Odisha">[OD] Odisha</option>
+                                  <option value="[PY]-Puducherry">[PY] Puducherry</option>
+                                  <option value="[PB]-Punjab">[PB] Punjab</option>
+                                  <option value="[RJ]-Rajasthan">[RJ] Rajasthan</option>
+                                  <option value="[SK]-Sikkim">[SK] Sikkim</option>
+                                  <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
+                                  <option value="[TS]-Telangana">[TS] Telangana</option>
+                                  <option value="[TR]-Tripura">[TR] Tripura</option>
+                                  <option value="[UP]-Uttar Predesh">[UP] Uttar Predesh</option>
+                                  <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
+                                  <option value="[WB]-West Bengal">[WB] West Bengal</option>
+                                  <option value="[OT]-Other Territory">[OT] Other Territory</option>
+                              </select>
+                              <div class="invalid-feedback">Please select a valid registration type.</div>
+                          </div>
+                      </div>
+  
+                      <div class="row mt-3">
+                          <div class="col-md-4">
+                              <label for="gstType">GST Type*</label>
+                              <select class="form-control" id="custGstType" name="gst_type" style="background-color: #060a0e; color: white;" required>
+                                  <option selected value="">Select GST Type</option>
+                                  <option value="Registered Business - Regular">Registered Business - Regular <span><i>(Business that is registered under gst)</i></span></option>
+                                  <option value="Registered Business - Composition">Registered Business - Composition (Business that is registered under composition scheme in gst)</option>
+                                  <option value="Unregistered Business">Unregistered Business (Business that has not been registered under gst)</option>
+                                  <option value="Overseas">Overseas (Import/Export of supply outside india)</option>
+                                  <option value="Consumer">Consumer</option>
+                                  <option value="Special Economic Zone (SEZ)">Special Economic Zone (SEZ) (Business that is located in a special economic zone of india or a SEZ developer)</option>
+                                  <option value="Demed Exports">Demed Exports (Supply of woods to an exports oriented unit or againsed advanced authorization or export promotion capital woods)</option>
+                                  <option value="Tax Deductor">Tax Deductor (State of central gov,government agencies or local authority)</option>
+                                  <option value="SEZ Developer">SEZ Developer (A person or organization who owns atleast 26% equality in creating business units in special economic zone)</option>
+                              </select>
+                              <div class="invalid-feedback">Please select a valid registration type.</div>
+                          </div>
+  
+                          <div class="col-md-4 gstrow d-block" id="gstInValue">
+                              <div>
+                                  <label for="custGstIN">GSTIN*</label>
+                                  <input type="text" class="form-control" onchange="checkgst(this)" id="custGstIN" name="gstin" style="background-color: #060a0e;color: white;" placeholder="29APPCK7465F1Z1">
+                                  <div class="text-danger m-2" id="warngst"></div>
+                              </div>
+                          </div>
+  
+                          <div class="col-md-4">
+                              <label for="panNo">PAN No.*</label>
+                              <input type="text" class="form-control" id="panNo" name="pan_no" style="background-color: #060a0e;color: white;" required onchange="checkpan(this)" placeholder="APPCK7465F">
+                              <div class="text-danger m-2" id="warnpan"></div>
+                          </div>
+                      </div>
+  
+                      <div class="row">
+                          <div class="col-md-4 mt-3">
+                              <label for="validationCustom05">Opening Balance</label>
+                              <div class="d-flex">
+                                  <select name="balance_type" id="bal" class="form-select text-white mr-1" style="background-color: #060a0e; width: 25%; border-radius: 5px;">
+                                      <option value="debit">Debit</option>
+                                      <option value="credit">Credit</option>
+                                  </select>
+                                  <input type="text" class="form-control" name="open_balance" id="openbalance" step="any" style="background-color: #060a0e;color: white;">
+                                  <div class="text-danger m-2" ></div>
+                              </div>
+                          </div>
+  
+                          <div class="col-md-4 mt-3">
+                              <label for="creditLimit">Credit Limit</label>
+                              <input type="text" class="form-control" name="credit_limit" style="background-color: #060a0e;color: white;" step="any" id="creditLimit">
+                              <div class="text-danger m-2" ></div>
+                          </div>
+  
+                          <div class="col-md-4 mt-3">
+                              <label for="custPaymentTerms">Payment Terms</label>
+                              <div class="d-flex">
+                                  <select name="payment_terms" id="custPaymentTerms" style="background-color: #060a0e;color: white;" class="form-control">
+                                      <option value="" selected>Choose</option>
+                                      {% for p in payments %}
+                                      <option value="{{p.id}}">{{p.term_name}}</option>
+                                      {% endfor %}
+                                  </select>
+                                  <a href="#newCustomerPaymentTerm" data-dismiss="modal" data-toggle="modal" class="btn btn-outline-warning ml-1">+</a>
+                              </div>
+                          </div>
+  
+                          <!-- <div class="col-md-4 mt-3">
+                              <label for="priceList">Price List</label>
+                              <select name="price_list" id="priceList" class="form-control">
+                                  <option value="" selected>Choose</option>
+                                  {% for l in list %}
+                                  <option value="{{l.id}}">{{l.name}}</option>
+                                  {% endfor %}
+                              </select>
+                          </div> -->
+                      </div>
+  
+                      <div class="row mt-3">
+                          <div class="col-md-4">
+                              <label for="custEmail">Email*</label>
+                              <input type="email" class="form-control" required id="custEmail" name="email" onchange="checkemail(this)" style="background-color: #060a0e;color: white;">
+                              <div id="warnemail" class="text-danger"></div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="custWebsite">Website</label>
+                              <input type="text" class="form-control" id="custWebsite" required  onchange="checkweb(this)" name="website" style="background-color: #060a0e;color: white;">
+                              <div id="warnweb" class="text-danger"></div>
+                          </div>
+                          <div class="col-md-4">
+                              <label for="custMobile">Mobile*</label>
+                              <input type="text" class="form-control" id="custMobile" required onchange="checkphone(this)" name="mobile" style="background-color: #060a0e;color: white;">
+                              <div class="text-danger m-2" id="warnphone"></div>
+                          </div>
+                      </div>
+                      <hr>
+                      <div class="row mt-5">
+                          <div class="col-md-6">
+                              <div class="row">
+                                  <div class="col-md-12 card-title">
+                                      <h5 class="mb-0 text-white">Billing Address</h5>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-12 mt-3">
+                                      <div class="form-row">
+                                          <label for="street">Street*</label>
+                                          <textarea class="form-control street" required id="street" name="street" style="background-color: #060a0e;color: white;"></textarea>
+                                          <div class="invalid-feedback">Please provide a valid Street</div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="city">City*</label>
+                                          <input type="text" class="form-control" required id="city" name="city" style="background-color: #060a0e;color: white;" placeholder="City">
+                                          <div class="invalid-feedback">Please provide a valid City</div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="state">State*</label>
+                                          <select type="text" class="form-control" id="state" name="state" required style="background-color: #060a0e; color: white;">
+                                              <option value="" selected hidden>Choose</option>
+                                              <option  value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+                                              <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
+                                              <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
+                                              <option value="[AS]-Assam">[AS] Assam</option>
+                                              <option value="[BR]-Bihar">[BR] Bihar</option>
+                                              <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
+                                              <option value="[CG]-Chhattisgarh">[CG] Chhattisgarh</option>
+                                              <option value="[DNH]-Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+                                              <option value="[DD]-Damn anad Diu">[DD] Damn anad Diu</option>
+                                              <option value="[DL]-Delhi">[DL] Delhi</option>
+                                              <option value="[GA]-Goa">[GA] Goa</option>
+                                              <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
+                                              <option value="[HR]-Haryana">[HR] Haryana</option>
+                                              <option value="[HP]-Himachal Predesh">[HP] Himachal Predesh</option>
+                                              <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+                                              <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
+                                              <option value="[KA]-Karnataka">[KA] Karnataka</option>
+                                              <option value="[KL]-Kerala">[KL] Kerala</option>
+                                              <option value="[LA]-Ladakh">[LA] Ladakh</option>
+                                              <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
+                                              <option value="[MP]-Madhya Predesh">[MP] Madhya Predesh</option>
+                                              <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
+                                              <option value="[MN]-Manipur">[MN] Manipur</option>
+                                              <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
+                                              <option value="[MZ]-Mizoram">[MZ] Mizoram</option>
+                                              <option value="[NL]-Nagaland">[NL] Nagaland</option>
+                                              <option value="[OD]-Odisha">[OD] Odisha</option>
+                                              <option value="[PY]-Puducherry">[PY] Puducherry</option>
+                                              <option value="[PB]-Punjab">[PB] Punjab</option>
+                                              <option value="[RJ]-Rajasthan">[RJ] Rajasthan</option>
+                                              <option value="[SK]-Sikkim">[SK] Sikkim</option>
+                                              <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
+                                              <option value="[TS]-Telangana">[TS] Telangana</option>
+                                              <option value="[TR]-Tripura">[TR] Tripura</option>
+                                              <option value="[UP]-Uttar Predesh">[UP] Uttar Predesh</option>
+                                              <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
+                                              <option value="[WB]-West Bengal">[WB] West Bengal</option>
+                                              <option value="[OT]-Other Territory">[OT] Other Territory</option>
+                                          </select>
+                                          <div class="invalid-feedback">Please provide a valid State</div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="pinco">Pin Code*</label>
+                                          <input type="text" class="form-control" required id="pinco" name="pincode" style="background-color: #060a0e;color: white;" placeholder="PIN code">
+                                          <div class="invalid-feedback">Please provide a valid Pin Code</div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="country">Country*</label>
+                                          <input type="text" class="form-control" required id="country" name="country" style="background-color: #060a0e;color: white;" placeholder="Country">
+                                          <div class="invalid-feedback">Please provide a valid Country</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="row">
+                                  <div class="col-md-12 d-flex ">
+                                      <h5 style="color: white;">Shipping Address </h5>
+                                      <input class="ml-4 ml-5" type="checkbox" onclick="placeShipAddress()" id="shipAddress" name="ship_address">
+                                      <label class="ml-2 mt-1 ml-2" for="shipAddress"> Same As Billing Address</label>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-12 mt-3">
+                                      <div class="form-row">
+                                          <label for="shipstreet">Street</label>
+                                          <textarea class="form-control" id="shipstreet" name="shipstreet" style="background-color: #060a0e;color: white;"></textarea>
+                                          <div class="invalid-feedback">Please provide a valid Street</div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="shipcity">City</label>
+                                          <input type="text" class="form-control" id="shipcity" name="shipcity" style="background-color: #060a0e;color: white;" placeholder="City">
+                                          <div class="invalid-feedback">Please provide a valid City</div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="shipstate">State</label>
+                                          <select type="text" class="form-control" id="shipState" name="shipstate" style="background-color: #060a0e; color: white;">
+                                              <option value="" selected>Choose</option>
+                                              <option  value="[AN]-Andaman and Nicobar Islads">[AN] Andaman and Nicobar Islads</option>
+                                              <option value="[AD]-Andhra Predhesh">[AD] Andhra Predhesh</option>
+                                              <option value="[AR]-Arunachal Predesh">[AR] Arunachal Predesh</option>
+                                              <option value="[AS]-Assam">[AS] Assam</option>
+                                              <option value="[BR]-Bihar">[BR] Bihar</option>
+                                              <option value="[CH]-Chandigarh">[CH] Chandigarh</option>
+                                              <option value="[CG]-Chhattisgarh">[CG] Chhattisgarh</option>
+                                              <option value="[DNH]-Dadra and Nagar Haveli">[DNH] Dadra and Nagar Haveli</option>
+                                              <option value="[DD]-Damn anad Diu">[DD] Damn anad Diu</option>
+                                              <option value="[DL]-Delhi">[DL] Delhi</option>
+                                              <option value="[GA]-Goa">[GA] Goa</option>
+                                              <option value="[GJ]-Gujarat">[GJ] Gujarat</option>
+                                              <option value="[HR]-Haryana">[HR] Haryana</option>
+                                              <option value="[HP]-Himachal Predesh">[HP] Himachal Predesh</option>
+                                              <option value="[JK]-Jammu and Kashmir">[JK] Jammu and Kashmir</option>
+                                              <option value="[JH]-Jharkhand">[JH] Jharkhand</option>
+                                              <option value="[KA]-Karnataka">[KA] Karnataka</option>
+                                              <option value="[KL]-Kerala">[KL] Kerala</option>
+                                              <option value="[LA]-Ladakh">[LA] Ladakh</option>
+                                              <option value="[LD]-Lakshadweep">[LD] Lakshadweep</option>
+                                              <option value="[MP]-Madhya Predesh">[MP] Madhya Predesh</option>
+                                              <option value="[MH]-Maharashtra">[MH] Maharashtra</option>
+                                              <option value="[MN]-Manipur">[MN] Manipur</option>
+                                              <option value="[ML]-Meghalaya">[ML] Meghalaya</option>
+                                              <option value="[MZ]-Mizoram">[MZ] Mizoram</option>
+                                              <option value="[NL]-Nagaland">[NL] Nagaland</option>
+                                              <option value="[OD]-Odisha">[OD] Odisha</option>
+                                              <option value="[PY]-Puducherry">[PY] Puducherry</option>
+                                              <option value="[PB]-Punjab">[PB] Punjab</option>
+                                              <option value="[RJ]-Rajasthan">[RJ] Rajasthan</option>
+                                              <option value="[SK]-Sikkim">[SK] Sikkim</option>
+                                              <option value="[TN]-Tamil Nadu">[TN] Tamil Nadu</option>
+                                              <option value="[TS]-Telangana">[TS] Telangana</option>
+                                              <option value="[TR]-Tripura">[TR] Tripura</option>
+                                              <option value="[UP]-Uttar Predesh">[UP] Uttar Predesh</option>
+                                              <option value="[UK]-Uttarakhand">[UK] Uttarakhand</option>
+                                              <option value="[WB]-West Bengal">[WB] West Bengal</option>
+                                              <option value="[OT]-Other Territory">[OT] Other Territory</option>
+                                          </select>
+                                          <div class="invalid-feedback">Please provide a valid State</div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row">
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="shippinco">Pin Code</label>
+                                          <input type="text" class="form-control" id="shippinco" name="shippincode" style="background-color: #060a0e;color: white;" placeholder="PIN code">
+                                          <div class="invalid-feedback">Please provide a valid Pin Code</div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-6 mt-3">
+                                      <div class="form-row">
+                                          <label for="shipcountry">Country</label>
+                                          <input type="text" class="form-control" id="shipcountry" name="shipcountry" style="background-color: #060a0e;color: white;" placeholder="Country">
+                                          <div class="invalid-feedback">Please provide a valid Country</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div class="row mt-4">
+                          <div class="col-4"></div>
+                          <div class="col-4 d-flex justify-content-center">
+                              <button class="btn btn-outline-warning text-grey w-75" data-dismiss="modal" type="button" id="newCustomerSave">Save</button>
+                          </div>
+                          <div class="col-4"></div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>   
+  </div>
+</div>
+
+
+<script>
+  $('#opn_bal').change(function (){
+    val = $('#opn_bal').val()
+    if($('#bal_type').val() == 'Credit'){
+      $('#opn_bal').val(-val)
+    }else{
+      if(val<0){
+        $('#opn_bal').val(-val)
+      }
+    }
+  })
+
+  $('#bal_type').change(function (){
+    val = $('#opn_bal').val()
+    $('#opn_bal').val(-val)
+  })
+  $(document).ready(function(){
+            // Show/Hide HSN or SAC field based on Expense Type
+            $('#expense_type').change(function(){
+                var selectedexpense_type = $(this).val();
+                if(selectedexpense_type === 'goods'){
+                    $('#hsnField').show();
+                    $('#sacField').hide();
+                } else if(selectedexpense_type === 'service'){
+                    $('#hsnField')
+                    .hide();
+                    $('#sacField').show();
+                } else {
+                    $('#hsnField').hide();
+                    $('#sacField').hide();
+                }
+            });
+        });
+        function checkCustomerEmail(email){
+    var custEmail = email;
+    if (custEmail != ""){
+        $.ajax({
+            type : 'POST',
+            url:"{% url 'checkCustomerEmail' %}",
+            data:{
+                'email' : custEmail,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            
+            success: function(response) {
+                if(response.is_exist){
+                    alert(response.message)
+                }
+            },         
+        });
+    }
+}
+
+$(document).on("click", "#newCustomerSave", function(){
+    var fName = $('#firstName').val();
+    var lName = $('#lastName').val();
+    var placeSupply = $('#custPlaceOfSupply').val();
+    var gstType = $("#custGstType").val();
+    var gstIN = $("#custGstIN").val();
+    var panNo = $("#panNo").val();
+    var Email = $("#custEmail").val();
+    var Mob = $("#custMobile").val();
+    var street = $("#street").val();
+    var city = $("#city").val();
+    var state = $("#state").val();
+    var pin = $("#pinco").val();
+    var country = $("#country").val();
+   
+
+
+
+    if(gstType != "Unregistered Business" && gstType != 'Overseas' && gstType != 'Consumer' && gstIN == ""){
+        alert('Fill all required fields..!')
+        return
+    }
+
+    if(fName != "" && lName != "" && placeSupply != "" && gstType != "" && panNo != "" && Email != "" && Mob != "" && street != "" && city != ""  && pin != "" && country != ""){
+        $.ajax({
+            type : 'POST',
+            url:"{% url 'createInvoiceCustomer' %}",
+            data:{
+                title : $('#title').val(),
+                first_name : fName,
+                last_name : lName,
+                company_name : $("#companyName").val(),
+                location : $("#location").val(),
+                place_of_supply : placeSupply,
+                gst_type : gstType,
+                gstin : gstIN,
+                pan_no : panNo,
+                payment_terms :$('#custPaymentTerms').val(),
+                open_balance : $("#openbalance").val(),
+                balance_type : $("#bal").val(),
+                credit_limit : $("#creditLimit").val(),
+                email : Email,
+                website :$("#custWebsite").val(),
+                mobile : Mob,
+                street : street,
+                city : $("#city").val(),
+                state : $("#state").val(),
+                country : $("#country").val(),
+                pincode : $("#pinco").val(),
+                shipstreet : $("#shipstreet").val(),
+                shipcity : $("#shipcity").val(),
+                shipstate : $("#shipState").val(),
+                shipcountry : $("#shipcountry").val(),
+                shippincode : $("#shippinco").val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+
+            success: function(response) {
+                if(response.status){
+                    console.log("AJAX Success",response)
+                    document.getElementById("newCustomerForm").reset();
+
+                    reloadCustomer();
+                }else{
+                    alert(response.message)
+                }
+            },
+        });
+    }else{
+        alert('Fill all required fields..!')
+        return
+    }
+});
+
+       
+        
+</script>
+
+
+{%endblock%}

@@ -656,7 +656,104 @@ def staff_password_change(request):
 # -------------------------------Zoho Modules section--------------------------------
 
 #--------------------------------------------------- TINTO VIEW ITEMS START-------------------------------------------
+# expense
+def expense(request): 
+    expenses = Expense.objects.all()
+    return render(request,'zohomodules/expense/expense.html',{'expenses': expenses})   
 
+def create_expense(request): 
+    customers = Customer.objects.all()
+    vendor=Vendor.objects.all()
+    return render(request,'zohomodules/expense/creation expense.html', {'c': customers, 'v' : vendor})   
+
+def expense_overview(request, expense_id): 
+    # Assuming 'user' is the correct attribute to get the user ID
+   # over = Expense.objects.all()
+    over  = get_object_or_404(Expense, pk=expense_id)
+    return render(request,'zohomodules/expense/expenseoverview.html', {'over': over})
+
+
+
+
+
+
+
+
+def create_expense1(request):
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        account = request.POST.get('account')
+        expense_type = request.POST.get('expense_type')
+        hsn_code = request.POST.get('hsn_code')
+        sac_code = request.POST.get('sac_code')
+        expense_number = request.POST.get('expense_number')
+        reference_number = request.POST.get('referense_number')
+        amount = request.POST.get('amount')
+        tax_rate = request.POST.get('tax_rate')
+        payment_type = request.POST.get('payment_type')
+        vendor_name = request.POST.get('vendor_name')
+        vendor_email = request.POST.get('vendor_email')
+        vendor_gstin = request.POST.get('vendor_gstin')
+        vendor_gst_type = request.POST.get('vendor_gst_type')
+        vendor_source_of_supply = request.POST.get(' vendor_source_of_supply')
+        vendor_billing_address = request.POST.get(' vendor_billing_address')
+        customer_name = request.POST.get(' customer_name')
+        customer_email = request.POST.get(' customer_email')
+        customer_gstin = request.POST.get(' customer_gstin')
+        customer_gst_type = request.POST.get('customer_gst_type')
+        customer_price_of_supply = request.POST.get(' customer_price_of_supply')
+        customer_billing_address = request.POST.get('customer_billing_address')
+        note = request.POST.get('note')
+
+        # Create Expense object
+        expense = Expense.objects.create(
+            date=date,
+            account=account,
+            expense_type=expense_type,
+            hsn_code=hsn_code,
+            sac_code=sac_code,
+            expense_number=expense_number,
+            reference_number=reference_number,
+            amount=amount,
+            tax_rate=tax_rate,
+            payment_type=payment_type,
+            vendor_name=vendor_name,
+            vendor_email=vendor_email,
+            vendor_gstin=vendor_gstin,
+            vendor_gst_type=vendor_gst_type,
+            vendor_source_of_supply=vendor_source_of_supply,
+            vendor_billing_address=vendor_billing_address,
+            customer_name=customer_name,
+            customer_email=customer_email,
+            customer_gstin=customer_gstin,
+            customer_gst_type=customer_gst_type,
+            customer_price_of_supply=customer_price_of_supply,
+            customer_billing_address=customer_billing_address,
+            note=note
+        )
+
+        # Handle file upload
+        if 'avatar' in request.FILES:
+            avatar = request.FILES['avatar']
+            expense.avatar = avatar
+            expense.save()
+
+        return redirect('expense')  # Redirect to success URL
+    else:
+        return render(request, 'create_expense.html')
+    
+
+def edit_expense(request, pk):
+    
+     #x = CustomUser.objects.get(id=pk)
+     edit=Expense.objects.get(id=pk)
+    # edit=Expense.objects.all()
+     
+     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit} )       
+
+def showexpense(request):
+    expenses = Expense.objects.all()  # Retrieve all expenses from the database
+    return render(request, 'expense.html', {'expenses': expenses})
 # items llist
     
 def items_list(request):                                                                
