@@ -995,8 +995,8 @@ class Expense(models.Model):
     customer_email = models.EmailField(null=True)
     customer_gstin = models.CharField(max_length=100, null=True)
     customer_gst_type = models.CharField(max_length=100, null=True)
-    customer_price_of_supply = models.DecimalField(max_digits=10, decimal_places=2,null=True)
+    customer_price_of_supply = models.CharField(max_length=100, null=True)
     customer_billing_address = models.TextField(null=True)
     note = models.TextField(null=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
-    
+    status = models.CharField(max_length=20, null=True)

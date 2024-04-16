@@ -91,7 +91,7 @@
                     </div>
                 </div>
          
-        
+              
         <div class="container-fluid" id="container-to-print" style="width: 100%;"> 
             <section id="selected-area">
           <div class="row pt-5">
@@ -109,7 +109,7 @@
                           <th style="color: rgb(250, 247, 242);">Expense Account</th>
                           <th style="color: rgb(244, 244, 244);">Expense Type</th>
                           <th style="color: rgb(255, 255, 255);">Payment Method</th>
-                          <th style="color: rgb(252, 252, 252);">Amount </th>
+                         
                           <th style="color: rgb(237, 237, 236);">Status</th>
                          
                           
@@ -124,11 +124,9 @@
                   <td class="bg-dark text-white" style="color: rgb(251, 249, 249); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.account }}</td>
                   <!-- <td style="color: rgb(0, 0, 0); background-color: black;">{{ i.type }}</td> -->
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.expense_type }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ i.selling_price }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.amount }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ i.opening_stock }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ i.current_stock }}</a></td>
-                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ i.activation_tag }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.payment_type }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.status }}</a></td>
+                  
               </tr>
             {% endfor %}
             

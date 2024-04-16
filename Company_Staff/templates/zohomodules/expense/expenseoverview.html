@@ -327,22 +327,22 @@
              <!-- Table 2: Billable Projects -->
              <table class="table  text-white" id="table2">
                <tbody>
-                 {% for i in items %}
+                 {% for i in exp %}
                    <tr class="clickable" id="{{i.id}}">
                      <td class="justify-content-between align-items-center ">
                        <!-- <b ><a class="text-white"  href="">{{i.item_name}} </a></b>
                        <br>
                        <a class="text-white"  href="">{{i.hsn_code}}</a><br> -->
-                       <label class="text-left d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.item_name}} </a></label>
+                       <label class="text-left d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.date}} </a></label>
                        <br>
-                       <label class="text-left d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.hsn_code}}</a></label>
+                       <label class="text-left d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.account}}</a></label>
                   
                      </td>
                      
                      <td>
-                       <label class="text-end d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.activation_tag}}</a></label>
+                       <label class="text-end d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.amount}}</a></label>
                        <br>
-                       <label class="text-end d-block"><a class="text-white"  href="{% url 'itemsoverview' i.id %}">{{i.current_stock}}</a></label>
+                       <label class="text-end d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.status}}</a></label>
                      </td>
                    </tr></a>
                  {% endfor %}
@@ -464,12 +464,12 @@
               </a>
       
               <!-- Item Status Edit Button -->
-              <a href="" class="btn btn-outline-warning py-2" title="Save this draft" style="margin-left: 4px;">
-                  {{selitem.activation_tag}}
+              <a href="{% url 'expense_status'  over.id %}" class="btn btn-outline-warning py-2" title="Save this draft" style="margin-left: 4px;">
+                  {{over.status}}
               </a>
       
               <!-- Delete Button -->
-              <a href="" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2"
+              <a href="{% url 'delete_expense'  over.id %}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2"
                   data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Item?');" style="margin-left: 4px;"></a>
       
               <!-- Share Button -->
@@ -510,7 +510,7 @@
               <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal2" data-toggle="tooltip" title="history">
                 <i class="fa-solid fa-clock-rotate-left"></i>
               </a>
-              <a href="{% url 'items_list'%}" class="delete fa fa-times  btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="back" ></a>
+              <a href="{% url 'expense'%}" class="delete fa fa-times  btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="back" ></a>
           
               <!-- History Button -->
               <!-- <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" data-toggle="modal" data-target="#history" >History</a> -->
@@ -554,7 +554,7 @@
             <div class="col-5"><label class="text-black" for="">Payment method :</label></div>
             <div class="col-7">
               <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
-                {{selitem.tax_reference}}</p>
+                {{over.payment_type}}</p>
             </div>
           </div>
           {% if selitem.tax_reference == "taxable" %}
@@ -576,7 +576,7 @@
           <div class="row mt-3">
             <div class="col-5"><label class="text-black" for="">Expense Type :</label></div>
             <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">         {{selitem.activation_tag}}</p>
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">         {{over.expense_type}}</p>
             </div>
           </div>
           <div class="row mt-3">

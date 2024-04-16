@@ -177,37 +177,38 @@ input[type="date"] {
             <div class="card mb-5 p-5" style="background-color: black; border-radius: 1vh;">
               <h1 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Edit &nbsp; Expense</h1><br>
               <hr class="text-warning">
-              <form action="{% url 'create_expense1' %}" method="post" enctype="multipart/form-data"id="myForm">
+              <form action="{% url 'edit_expense1' edit.id %}" method="post" enctype="multipart/form-data"id="myForm">
                 {% csrf_token %}
                 <div class="row">
                   <label for="date" class="col-md-3 p-3 labels">Expense Date</label>
                   <div class="col-md-6 p-3">
-                    <input type="date" class="form-control text-white bg-black" value="{{edit.date }}" id="" name="" required>
+                    <input type="date" class="form-control text-white bg-black" value="{{edit.date|date:'Y-m-d' }}" id="date" name="date" required>
                   </div>
                 </div>
                 
                 <div class="row">
                   <label for="name" class="col-md-3 p-3 labels">Expense Account</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="account" name="account">
+                    <input type="text" class="form-control text-white bg-black" value="{{edit.account }}" id="account" name="account">
                   </div>
                 </div>
           
                 <div class="row">
-                  <label for="ac_no" class="col-md-3 p-3 labels">Expense Type</label>
+                  <label for="expense_type" class="col-md-3 p-3 labels">Expense Type</label>
                   <div class="col-md-6 p-3">
-                    <select class="form-control "  id="expense_type" style="color: white;"  name="expense_type">
-                      <option style="background-color: black;"  value="" >Select Expense Type</option>
-                      <option style="background-color: black;"  value="goods">Goods</option>
-                      <option style="background-color: black;"  value="service">Service</option>
-                  </select>
+                      <select class="form-control" id="expense_type" name="expense_type" style="color: white;">
+                          <option style="background-color: black;" value="">Select Expense Type</option>
+                          <option style="background-color: black;" value="goods" {% if edit.expense_type == 'goods' %} selected {% endif %}>Goods</option>
+                          <option style="background-color: black;" value="service" {% if edit.expense_type == 'service' %} selected {% endif %}>Service</option>
+                      </select>
                   </div>
-                </div>
+              </div>
+              
 
                 <div class="row" id="hsnField" style="display: none;">
                   <label for="name" class="col-md-3 p-3 labels">Hsn code</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="hsn_code" name="hsn_code">
+                    <input type="text" class="form-control text-white bg-black" value="{{edit.hsn_code }}" id="hsn_code" name="hsn_code">
                   </div>
                 </div>
 
@@ -218,7 +219,7 @@ input[type="date"] {
               <div class="row" id="sacField" style="display: none;">
                 <label for="name" class="col-md-3 p-3 labels">sac code</label>
                 <div class="col-md-6 p-3">
-                  <input type="text" class="form-control text-white bg-black" id="sac_code" name="sac_code">
+                  <input type="text" class="form-control text-white bg-black" value="{{edit.sac_code }}" id="sac_code" name="sac_code">
                 </div>
               </div>
           
@@ -227,13 +228,13 @@ input[type="date"] {
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">Expense Number</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="expense_number" name="expense_number">
+                    <input type="text" class="form-control text-white bg-black" id="expense_number" value="{{edit.expense_number }}" name="expense_number">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">Referense Number</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="referense_number" name="referense_number">
+                    <input type="text" class="form-control text-white bg-black" id="referense_number" value="{{edit.reference_number}}" name="referense_number">
                   </div>
                 </div>
                 <div class="row">
@@ -247,7 +248,7 @@ input[type="date"] {
                           <option value="srl" selected>SRL</option>
                         </select>
                       </div>
-                      <input type="number" class="form-control text-white bg-black" id="amount" name="amount">
+                      <input type="number" class="form-control text-white bg-black" id="amount"  value="{{edit.amount}}" name="amount">
                     </div>
                   </div>
                 </div>
@@ -255,31 +256,32 @@ input[type="date"] {
                 <div class="row">
                   <label for="ifsc" class="col-md-3 p-3 labels">Tax Rate</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="tax_rate" name="tax_rate">
+                    <input type="text" class="form-control text-white bg-black" id="tax_rate"  value="{{edit.tax_rate}}" name="tax_rate">
                   </div>
                 </div>
                 <div class="row">
                   <label for="ifsc" class="col-md-3 p-3 labels">Payment Type</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="payment_type" name="payment_type">
+                    <input type="text" class="form-control text-white bg-black"  value="{{edit.payment_type}}" id="payment_type" name="payment_type">
                   </div>
                 </div>
                 <br>
                 <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
                 <hr class="text-warning">
                 <div class="row">
-                  <label for="branch" class="col-md-3 p-3 labels">Select Vendor</label>
-                  
+                  <label for="vendor_name" class="col-md-3 p-3 labels">Select Vendor</label>
                   <div class="col-md-6 p-3">
-                    <select name=" vendor_name" id=" vendor_name" value="{{edit.vendor_name }}" class="form-control" required>
-                      <option style="color: white;">Select vendor </option>
-                      {% for cust in v %}
-                      <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name }}</option>
-                      {% endfor %}
-                  </select>
-                   
-                 
+                      <select name="vendor_name" id="vendor_name" class="form-control" required>
+                          <option style="color: white;">Select vendor</option>
+                          {% for cust in v %}
+                              <option value="{{ cust.first_name }}" {% if edit.first__name == cust.first_name %} selected {% endif %}>{{ cust.first_name }} {{ cust.last_name }}</option>
+                          {% endfor %}
+                      </select>
                   </div>
+              
+              
+                
+                
                   <div class="col-2">
                     <a class="btn btn-outline-warning py-2" role="button" style="cursor: pointer;" data-toggle="modal" data-target="#bank_creation" style="height: 38px; margin-right: 3px;">+</a>
                 </div>
@@ -293,25 +295,25 @@ input[type="date"] {
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">GST in</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="vendor_gstin" name="vendor_gstin">
+                    <input type="text" class="form-control text-white bg-black"  value="{{edit.vendor_gstin}}" id="vendor_gstin" name="vendor_gstin">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">GST Type</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="vendor_gst_type" name="vendor_gst_type">
+                    <input type="text" class="form-control text-white bg-black"  value="{{edit.vendor_gst_type}}" id="vendor_gst_type" name="vendor_gst_type">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">Sourse of supply</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="vendor_sourse_of_supply" name="vendor_sourse_of_supply">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_sourse_of_supply"  value="{{edit.vendor_source_of_supply}}" name="vendor_sourse_of_supply">
                   </div>
                 </div>
                 <div class="row ">
                   <label for="branch" class="col-md-3 p-3 labels">Billing Address</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="vendor_billing_address" name="vendor_billing_address">
+                    <input type="text" class="form-control text-white bg-black" id="vendor_billing_address" value="{{edit.vendor_billing_address}}" name="vendor_billing_address">
                   </div>
                 </div>
                 <br>
@@ -323,7 +325,7 @@ input[type="date"] {
                     <select name="customer_name" id="customer_name" class="form-control" required>
                       <option  value="0">Select customer </option>
                       {% for cust in c %}
-                      <option value="{{ cust.id }}">{{ cust.first_name }} {{ cust.last_name }}</option>
+                      <option value="{{ cust.first_name }}">{{ cust.first_name }} {{ cust.last_name }}</option>
                       {% endfor %}
                      
                   </select>
@@ -337,31 +339,31 @@ input[type="date"] {
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">Email</label>
                   <div class="col-md-6 p-3">
-                    <input type="email" class="form-control text-white bg-black" id="customer_email" name="customer_email">
+                    <input type="email" class="form-control text-white bg-black" value="{{edit.customer_email}}" id="customer_email" name="customer_email">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">GST in</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="customer_gstin" name="customer_gstin">
+                    <input type="text" class="form-control text-white bg-black" id="customer_gstin" value="{{edit.customer_gstin}}" name="customer_gstin">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">GST Type</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="customer_gst_type" name="customer_gst_type">
+                    <input type="text" class="form-control text-white bg-black" id="customer_gst_type" value="{{edit.customer_gst_type}}" name="customer_gst_type">
                   </div>
                 </div>
                 <div class="row">
                   <label for="branch" class="col-md-3 p-3 labels">price of supply</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="customer_price_of_supply" name="customer_price_of_supply">
+                    <input type="text" class="form-control text-white bg-black" id="customer_price_of_supply" value="{{edit.customer_price_of_supply}}" name="customer_price_of_supply">
                   </div>
                 </div>
                 <div class="row ">
                   <label for="branch" class="col-md-3 p-3 labels">Billing Address</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="customer_billing_address" name="customer_billing_address">
+                    <input type="text" class="form-control text-white bg-black" id="customer_billing_address" value="{{edit.customer_billing_address}}" name="customer_billing_address">
                   </div>
                 </div>
                 <div class="row">
@@ -373,7 +375,7 @@ input[type="date"] {
                 <div class="row ">
                   <label for="branch" class="col-md-3 p-3 labels">Note</label>
                   <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="note" name="note">
+                    <input type="text" class="form-control text-white bg-black" value="{{edit.note}}" id="note" name="note">
                   </div>
                 </div>
                 <br>

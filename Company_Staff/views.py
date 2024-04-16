@@ -664,17 +664,16 @@ def expense(request):
 def create_expense(request): 
     customers = Customer.objects.all()
     vendor=Vendor.objects.all()
-    return render(request,'zohomodules/expense/creation expense.html', {'c': customers, 'v' : vendor})   
+    account= Chart_of_Accounts.objects.all()
+    bank=Banking.objects.all()
+    return render(request,'zohomodules/expense/creation expense.html', {'c': customers, 'v' : vendor, 'a':account, 'b':bank})   
 
 def expense_overview(request, expense_id): 
     # Assuming 'user' is the correct attribute to get the user ID
    # over = Expense.objects.all()
+    expenses = Expense.objects.all()
     over  = get_object_or_404(Expense, pk=expense_id)
-    return render(request,'zohomodules/expense/expenseoverview.html', {'over': over})
-
-
-
-
+    return render(request,'zohomodules/expense/expenseoverview.html', {'over': over,'exp':expenses})
 
 
 
@@ -695,13 +694,13 @@ def create_expense1(request):
         vendor_email = request.POST.get('vendor_email')
         vendor_gstin = request.POST.get('vendor_gstin')
         vendor_gst_type = request.POST.get('vendor_gst_type')
-        vendor_source_of_supply = request.POST.get(' vendor_source_of_supply')
-        vendor_billing_address = request.POST.get(' vendor_billing_address')
-        customer_name = request.POST.get(' customer_name')
-        customer_email = request.POST.get(' customer_email')
-        customer_gstin = request.POST.get(' customer_gstin')
+        vendor_source_of_supply = request.POST.get('vendor_source_of_supply')
+        vendor_billing_address = request.POST.get('vendor_billing_address')
+        customer_name = request.POST.get('customer_name')
+        customer_email = request.POST.get('customer_email')
+        customer_gstin = request.POST.get('customer_gstin')
         customer_gst_type = request.POST.get('customer_gst_type')
-        customer_price_of_supply = request.POST.get(' customer_price_of_supply')
+        customer_price_of_supply = request.POST.get('customer_price_of_supply')
         customer_billing_address = request.POST.get('customer_billing_address')
         note = request.POST.get('note')
 
@@ -729,7 +728,8 @@ def create_expense1(request):
             customer_gst_type=customer_gst_type,
             customer_price_of_supply=customer_price_of_supply,
             customer_billing_address=customer_billing_address,
-            note=note
+            note=note,
+            status="inactive"
         )
 
         # Handle file upload
@@ -747,14 +747,129 @@ def edit_expense(request, pk):
     
      #x = CustomUser.objects.get(id=pk)
      edit=Expense.objects.get(id=pk)
+     customers = Customer.objects.all()
+     vendor=Vendor.objects.all()
     # edit=Expense.objects.all()
      
-     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit} )       
+     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit,'c': customers, 'v' : vendor} )      
+
+def edit_expense1(request, pk):
+    
+     #x = CustomUser.objects.get(id=pk)
+     edit=Expense.objects.get(id=pk)
+    
+    # edit=Expense.objects.all()
+     if request.method == 'POST':
+        edit.date = request.POST.get('date')
+        edit.account = request.POST.get('account')
+        edit.expense_type = request.POST.get('expense_type')
+        edit.hsn_code = request.POST.get('hsn_code')
+        edit.sac_code = request.POST.get('sac_code')
+        edit.expense_number = request.POST.get('expense_number')
+        edit.reference_number = request.POST.get('referense_number')
+        edit.amount = request.POST.get('amount')
+        edit.tax_rate = request.POST.get('tax_rate')
+        edit.payment_type = request.POST.get('payment_type')
+        edit.vendor_name = request.POST.get('vendor_name')
+        edit.vendor_email = request.POST.get('vendor_email')
+        edit.vendor_gstin = request.POST.get('vendor_gstin')
+        edit.vendor_gst_type = request.POST.get('vendor_gst_type')
+        edit.vendor_source_of_supply = request.POST.get('vendor_source_of_supply')
+        edit.vendor_billing_address = request.POST.get('vendor_billing_address')
+        edit.customer_name = request.POST.get('customer_name')
+        edit.customer_email = request.POST.get('customer_email')
+        edit.customer_gstin = request.POST.get('customer_gstin')
+        edit.customer_gst_type = request.POST.get('customer_gst_type')
+        edit.customer_price_of_supply = request.POST.get('customer_price_of_supply')
+        edit.customer_billing_address = request.POST.get('customer_billing_address')
+        edit.note = request.POST.get('note')
+        edit.save()
+
+     
+     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit} )  
+
+def expense_status(request, pv):                                                                #new by tinto mt
+    
+    selitem = Expense.objects.get(id=pv)
+
+    if selitem.status == 'Active':
+        selitem.status = 'inactive'
+        selitem.save()
+    elif selitem.status != 'Active':
+        selitem.status = 'Active'
+        selitem.save()
+
+    selitem.save()
+
+    return redirect('expense_overview',pv)
+
+
+def delete_expense(request, pk):
+    expense = get_object_or_404(Expense, id=pk)
+    expense.delete()
+    return redirect('expense')  
 
 def showexpense(request):
     expenses = Expense.objects.all()  # Retrieve all expenses from the database
     return render(request, 'expense.html', {'expenses': expenses})
 # items llist
+
+
+def fetch_vendor_data(request):
+    vendor_name = request.GET.get('vendor')
+    if vendor_name:
+        try:
+            vendor = Vendor.objects.get(name=vendor_name)
+            return JsonResponse({'email': vendor.vendor_email})
+        except Vendor.DoesNotExist:
+            pass
+    return JsonResponse({}, status=400)
+
+def getCustomerDetailsAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+        
+        custId = request.POST['id']
+        cust = Customer.objects.get(id = custId)
+
+        if cust:
+            context = {
+                'status':True, 'id':cust.id, 'email':cust.customer_email, 'gstType':cust.GST_treatement,'shipState':cust.place_of_supply,'gstin':False if cust.GST_number == "" or cust.GST_number == None or cust.GST_number == 'null' else True, 'gstNo':cust.GST_number,
+                'street':cust.billing_address, 'city':cust.billing_city, 'state':cust.billing_state, 'country':cust.billing_country, 'pincode':cust.billing_pincode
+            }
+            return JsonResponse(context)
+        else:
+            return JsonResponse({'status':False, 'message':'Something went wrong..!'})
+    else:
+       return redirect('/')
+
+def getvendorDetailsAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details = log_details).company
+        
+        vendId = request.POST['id']
+        vend = Vendor.objects.get(id = vendId)
+
+        if vend:
+            context = {
+                'status':True, 'idv':vend.id, 'vemail':vend.vendor_email, 'vgstType':vend.gst_treatment,'vshipState':vend.source_of_supply,'vgstin':False if vend.gst_number == "" or vend.gst_number == None or vend.gst_number == 'null' else True, 'vgstNo':vend.gst_number,
+                'vstreet':vend.billing_address, 'vcity':vend.billing_city, 'vstate':vend.billing_state, 'vcountry':vend.billing_country, 'vpincode':vend.billing_pin_code
+            }
+            return JsonResponse(context)
+        else:
+            return JsonResponse({'status':False, 'message':'Something went wrong..!'})
+    else:
+       return redirect('/')       
     
 def items_list(request):                                                                
      if 'login_id' in request.session:
