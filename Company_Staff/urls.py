@@ -41,11 +41,22 @@ urlpatterns = [
 
     path('new_items',views.new_items,name='new_items'),
     path('items_list',views.items_list,name='items_list'),
+
+
+    #-----------------------Anoop expense-------------------------------------
+
+
+
+
+
     path('expense',views.expense,name='expense'),
     path('expense_status/<int:pv>/',views.expense_status,name='expense_status'),
     path('edit_expense/<int:pk>/',views.edit_expense,name='edit_expense'),
     path('edit_expense1/<int:pk>/',views.edit_expense1,name='edit_expense1'),
     path('expense_overview/<int:expense_id>/',views.expense_overview,name='expense_overview'),
+   # path('Company/customermodal',views.customermodal, name='customermodal'),
+    #path('vendor_modal',views.vendor_modal, name='vendor_modal'),
+    path('check_vendor_email_exist',views.check_vendor_email_exist, name='check_vendor_email_exist'),
     path('delete_expense/<int:pk>/',views.delete_expense,name='delete_expense'),
     path('create_expense',views.create_expense,name='create_expense'),
     path('getCustomerDetailsAjax',views.getCustomerDetailsAjax,name='getCustomerDetailsAjax'),
@@ -53,6 +64,29 @@ urlpatterns = [
     path('fetch_vendor_data',views.fetch_vendor_data,name='fetch_vendor_data'),
     path('create_expense1',views.create_expense1,name='create_expense1'),
     path('showexpense',views.showexpense,name='showexpense'),
+    path('add_expense_comment/<int:expense_id>',views.add_expense_comment,name='add_expense_comment'),
+    path('delete_expense_comment/<int:pk>',views.delete_expense_comment,name='delete_expense_comment'),
+    path('Company/attachexpenseFile/<int:id>',views.attachexpenseFile, name='attachexpenseFile'),
+    path('Company/new_pymnt_trm',views.newPaymentTermAjax, name='newPaymentTermAjax'),
+    path('Company/new_pymnt_trm',views.newvendorPaymentTermAjax, name='newvendorPaymentTermAjax'),
+    path('Company/new_sales_customer_ajax',views.newSalesCustomerAjax, name='newSalesCustomerAjax'),
+    path('Company/get_all_cust',views.getCustomersAjax, name='getCustomersAjax'),
+    path('check_vendor_work_phone_exist',views.check_vendor_work_phone_exist,name='check_vendor_work_phone_exist'),
+    path('check_vendor_phonenumber_exist',views.check_vendor_phonenumber_exist,name='check_vendor_phonenumber_exist'),
+    path('vendor_check_pan',views.vendor_check_pan,name='vendor_check_pan'),
+    path('vendor_check_gst',views.vendor_check_gst,name='vendor_check_gst'),
+    path('newVendorAjax',views.newVendorAjax,name='newVendorAjax'),
+    path('import_expense',views.import_expense,name='import_expense'),
+    path('get_vendor_data/', views.get_vendor_data, name='get_vendor_data'),
+
+
+
+
+
+  #end expense-----------------------expense end------------------------------------------
+
+
+
     path('create_item',views.create_item,name='create_item'),
     path('itemsoverview/<int:pk>',views.itemsoverview,name='itemsoverview'),
     path('edititems/<int:pr>',views.edititems,name='edititems'),

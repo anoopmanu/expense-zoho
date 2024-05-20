@@ -12,6 +12,11 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="path/to/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+
 <style>
     .bg-dark {
       --bs-bg-opacity: 0;
@@ -54,8 +59,8 @@
                         </a>
                         <div class="dropdown-menu m-1" style="background-color: black; color: white;">
                           <a class="dropdown-item" href="" style="color: azure;">All</a>
-                          <a class="dropdown-item" href="javascript:sortTable(1)" style="color: azure;">Item Name </a>
-                          <a class="dropdown-item" href="javascript:sortTable(2)" style="color: azure;">HSN  </a>
+                          <a class="dropdown-item" href="javascript:sortTable(1)" style="color: azure;">Amount </a>
+                          <a class="dropdown-item" href="javascript:sortTable(2)" style="color: azure;">Expense Account </a>
                         
                         </div>
                     </div>
@@ -70,19 +75,40 @@
                             </a>
                             <div class="dropdown-menu m-1" style="background-color: black; color: white;">
                               <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">All</a>
-                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Active</a>
-                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">Inactive</a>
+                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">draft</a>
+                              <a class="dropdown-item dropdown-item-filter" href="javascript:void(0);" style="background-color: black; color: white;">save</a>
                             </div>
                         </div>
               
-                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="reduce_dash()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning"  href="">
+                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="sampleexcel()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning"  href="">
                           <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
                           <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Import</span>
                       </a>
-                      <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="exportToExcel()" class="btn btn-outline-warning" >
+                      <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="exportToExcel()" class="btn btn-outline-warning">
                         <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
                         <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Export</span>
                     </a>
+                    <script>
+                      
+                      function exportToExcel() {
+                          var table = document.querySelector('#data-table');
+                          var ws = XLSX.utils.table_to_sheet(table);
+                          var wb = XLSX.utils.book_new();
+                          XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+                          XLSX.writeFile(wb, 'expense.xlsx');
+                      }
+                  </script>
+                   <script>
+                    function sampleexcel(){
+                      const table1 = document.querySelector('#expensemodeltable');
+                      const ws1 = XLSX.utils.table_to_sheet(table1);
+                      const wb1 = XLSX.utils.book_new();
+                      XLSX.utils.book_append_sheet(wb1, ws1, 'Sheet1');
+                      XLSX.writeFile(wb1, 'expense list.xlsx');
+                    }
+                  </script>
+                
+                
         
                         <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center; margin-left: 10px;" class="btn btn-outline-warning"  href="{% url 'create_expense' %}">
                             NEW <i class="fa fa-plus" style="font-size: large;"></i>
@@ -90,13 +116,12 @@
                         </a>
                     </div>
                 </div>
-         
-              
+               
         <div class="container-fluid" id="container-to-print" style="width: 100%;"> 
             <section id="selected-area">
           <div class="row pt-5">
               <center>
-                <h2 class="text" style="color: white;">{{ company.company_name }}</h2>
+                <h2 class="text" style="color: white;">{{ cmp.company_name }}</h2>
                
         
               </center>
@@ -108,6 +133,7 @@
                           <th style="color: rgb(247, 247, 247);">Date</th>
                           <th style="color: rgb(250, 247, 242);">Expense Account</th>
                           <th style="color: rgb(244, 244, 244);">Expense Type</th>
+                          <th style="color: rgb(244, 244, 244);">Amount</th>
                           <th style="color: rgb(255, 255, 255);">Payment Method</th>
                          
                           <th style="color: rgb(237, 237, 236);">Status</th>
@@ -124,6 +150,7 @@
                   <td class="bg-dark text-white" style="color: rgb(251, 249, 249); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.account }}</td>
                   <!-- <td style="color: rgb(0, 0, 0); background-color: black;">{{ i.type }}</td> -->
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.expense_type }}</a></td>
+                  <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.amount }}</a></td>
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.payment_type }}</a></td>
                   <td class="bg-dark text-white" style="color: rgb(0, 0, 0); background-color: black;"><a href="{% url 'expense_overview' expense.id %}">{{ expense.status }}</a></td>
                   
@@ -149,6 +176,47 @@
             </div>
         </section>
         </div>
+        <div class="row" hidden>
+          <table id="expensemodeltable">
+            <thead>
+                <th>Expense Date</th>
+              <th>Expense Account</th>
+              <th>Expense Type</th>
+              <th>HSN</th>
+              <th>SAC</th>
+             <th>Expense Number</th>
+             <th>Referense Number</th>
+             <th>Amount</th>
+             <th>Tax rate</th>
+             <th>Payment Method</th>
+             <th>Vendor</th>
+              <th>Vendor Email</th>
+              <th>GST Type</th>
+              <th>GST IN</th>
+              <th>Billing Address</th>
+              <th>Source of supply([KL]-Kerala)</th>
+              <th>Customer</th>
+              <th>Customer Email</th>
+              <th>GST Type</th>
+              <th>GST IN</th>
+              <th>Billing Address</th>
+              <th>Place of supply</th>
+              <th>Note</th>
+             
+            </thead>
+            <tbody>
+              
+             
+            </tbody>
+          </table>
+        </div>
+
+
+      </div>
+</div>
+      </div>
+      </div>
+
         <!-- TABLE SORT SCCCRIPT -->
         <!-- Include jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -238,16 +306,7 @@
             });
           });
         </script>
-        <script>
-        function exportToExcel() {
-            var table = document.querySelector('#data-table'); // Add # to select by ID
-            var ws = XLSX.utils.table_to_sheet(table);
-            var wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-            XLSX.writeFile(wb, 'items.xlsx');
-        }
-        
-        </script>
+       
         <!-- filter End -->
         
         
@@ -256,43 +315,37 @@
         
         
         <div class="modal fade" id="import_modal">
-          <div class="modal-dialog modal-xl">
-            <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-              <div class="modal-header " style="background: rgb(32, 35, 37);">
-                <h1 class="text-light">Import Item</h1>
-              </div>
-              <div class="modal-body" style="background: rgb(32, 35, 37);">
-                <div class="card p-3 m-3" style="background-color: black;">        
-                  <div class="row" style="background-color: black;">
-                    <div class="col-md-12 col-lg-12 col-sm-12" style="background-color: black;">
-                      <h5 class="text-danger">IMPORTANT:</h5>
-                      <p class="text-light">File should have  sheet named 'Sheet1' and column name & order should be in the given format(Uppercase)</p><br>
-                      
-                      <p class="text-light">Status should be given in one of the following format <br>
-                          Active  <br>
-                          inactive
-                      </p><br>
-                      <p class="text-light">If Taxble ,then fill Intra-State TAX and Inter-State TAX  <br>
-                          If not have CGST and SGST Tax  then filled with 0
-                          
-                      </p>
-        
-        
+          <div class="modal-dialog modal-lg">
+              <div class="modal-content" style="background-color: #3b3b3b;">
+                  <div class="modal-header">
+                      <h3 class="modal-title text-light" id="exampleModalLabel">Import Recurring Invoice</h3>
+                      <button type="button" class="btn close text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                      </button>
                     </div>
+                  <div class="modal-body mx-3 rounded-1" style="background-color: #000;">
+                      <div class="file_instructions">
+                         
+                      </div>
+                     
+                      <form id="importExpenseForm" action="{% url 'import_expense' %}" method="POST" class="form" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="excel_file" class="form-label text-white">File</label>
+                            <input id="excel_file" class="form-control" type="file" name="excel_file" required>
+                        </div>
+                        <div class="d-flex justify-content-center mt-4">
+                            <input id="submit_import_excel" value="IMPORT" class="btn btn-outline-warning" type="submit">
+                        </div>
+                        
+                    </form>
                   </div>
-                </div>
-                <a href="" class="text-primary" style="font-size:medium;">Download Sample File here</a> <br>
-        
-                <form action="" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  <h6 class="text-light"></h6>
-                  <input type="file" name="excel_file" class="form-control text-dark" style="width: 50%;"><br>
-                  <button class="btn btn-outline-warning mt-3">IMPORT</button>
-                </form>
+                  <div class="modal-footer"></div>
               </div>
-            </div>
           </div>
-        </div>
+      </div>
+      
+
         <script>
          function sortTable(columnIndex) {
             const table = document.getElementById("data-table");

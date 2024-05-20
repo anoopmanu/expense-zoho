@@ -414,7 +414,7 @@
           <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;"><i class="fas fa-eye"></i>
             Overview</a>
             <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
-              Transaction</a>
+              Templates</a>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     // Get the elements by ID
@@ -467,9 +467,21 @@
               <a href="{% url 'expense_status'  over.id %}" class="btn btn-outline-warning py-2" title="Save this draft" style="margin-left: 4px;">
                   {{over.status}}
               </a>
+             
+              <a class="btn btn-outline-warning py-2" id="attach_btn" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-paperclip"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="attach_btn">
+                <a class="dropdown-item text-black" data-toggle="modal" data-target="#bnk_files">Add Document</a>
+                {% if over.avatar != "" %} 
+                <a class="dropdown-item text-black" download href="{{over.avatar.url}}">Download Document</a>
+                {% endif %}
+            </div> 
+               
+           
       
               <!-- Delete Button -->
-              <a href="{% url 'delete_expense'  over.id %}" class="delete fa fa-trash btn btn-outline-warning text-warning px-2 py-2"
+              <a href="{% url 'delete_expense'  over.id %}" class="delete fa fa-trash btn btn-outline-warning py-2 text-warning"
                   data-toggle="tooltip" title="DELETE" onclick="return confirm('Do you want to Delete this Item?');" style="margin-left: 4px;"></a>
       
               <!-- Share Button -->
@@ -504,10 +516,10 @@
                               class="fas fa-list"></i>&nbsp;View List</a>
                   </div>
               </div> -->
-              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal" data-toggle="tooltip" title="comment">
+              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#ExpenseComment" data-toggle="tooltip" title="comment">
                 <i class="far fa-comment"></i>
               </a>
-              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#commentModal2" data-toggle="tooltip" title="history">
+              <a class="btn btn-outline-warning" href="" data-toggle="modal" data-target="#history" data-toggle="tooltip" title="history">
                 <i class="fa-solid fa-clock-rotate-left"></i>
               </a>
               <a href="{% url 'expense'%}" class="delete fa fa-times  btn btn-outline-warning text-warning px-2 py-2 btn-margin" style="width:80px;" data-toggle="tooltip" title="back" ></a>
@@ -543,13 +555,7 @@
               <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">   {{over.date}}</p>
             </div>
           </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-black" for="">SAC :</label></div>
-            <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">
-                {{selitem.unit.unit_name}}</p>
-            </div>
-          </div>
+         
           <div class="row mt-3">
             <div class="col-5"><label class="text-black" for="">Payment method :</label></div>
             <div class="col-7">
@@ -582,28 +588,48 @@
           <div class="row mt-3">
             <div class="col-5"><label class="text-black" for=""> Tax Rate:</label></div>
             <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">        {{selitem.minimum_stock_to_maintain}}</p>
+              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">        {{ over.tax_rate }}</p>
             </div>
           </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-black" for="">Inventory Account : </label></div>
+          <br>
+          <br>
+          <div class="row text-center">
+            <h2 class="text-black">COMPANY DETAILS {{latest_item_id.action}}
+              <hr>
+            </h2>
+          </div>
+
+
+          <div class="row mt-2 text-white" >
+            <div class="col-5"><label class="text-black" for="">Company Name </label></div>
             <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">{{selitem.inventory_account}}</p>
+              
+              <p class="bold text-black"> : {{over.company.company_name}}</p>
+             
             </div>
           </div>
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-black" for="">Opening stock :</label></div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-black" for="">Email </label></div>
             <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">{{selitem.opening_stock}}</p>
+              <p class="bold text-black" >  : {{over.login_details.email}}  </p>
             </div>
           </div>
-        
-          <div class="row mt-3">
-            <div class="col-5"><label class="text-black" for="">Current Stock :</label></div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-black" for=""> Address </label></div>
             <div class="col-7">
-              <p class="bold text-black" style="max-width: 15rem;word-wrap: break-word;">  {{selitem.current_stock}}</p>
+              <p class="bold text-black"> : &nbsp; {{over.company.address}} </p>
             </div>
           </div>
+          <div class="row mt-2">
+            <div class="col-5"><label class="text-black" for=""> Phone </label></div>
+            <div class="col-7">
+              <p class="bold text-black"> : &nbsp; {{over.company.contact}} </p>
+            </div>
+          </div>
+         
+         
+          
+         
         </div>
        
         
@@ -695,12 +721,13 @@
             </a>
           </div>
         </div>
+        
         <div class="row">
           <div class="col-md-6">
             <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate2()"><i class="fas fa-eye"></i>
               Overview</a>
               <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
-                Transaction</a>
+                Templates</a>
      
     
     
@@ -733,7 +760,7 @@
                     </div>
                 </div>
         
-                <a class="text-dark" onclick="exportToPDF3()">
+                <a class="text-dark" onclick="export_as_pdf()">
                     <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;margin-left: 4px;"><i class="fas fa-file-pdf" ></i></button>
                 </a>
         
@@ -758,150 +785,568 @@
                 <!-- History Button -->
                 <!-- <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" data-toggle="modal" data-target="#history" >History</a> -->
             </div>
-        </div><br>
+        </div>
+        
+        <br>
         
     
         <div class="row" id="div-to-pdf"
           style="background-color: #c4c1c1fd;  height: auto; margin-left:20px; margin-right: 1rem; width: 75%; ">
     
-          <div class="row text-center">
-            <h2 style="color: #000000;"><br>{{selitem.item_name}}
-              <hr>
-            </h2>
-          </div>    
-          <div class="row" id="div-to-print"
-          style="background-color: #c4c1c1fd;  height: auto; margin-left:1px; margin-right: 1rem;width: 100%; ">
-          <div class="row mt-3">
-            <div class="col-md-6">
-                <label class="text-dark bold" for="">Item Name:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.item_name}}</p>
-            </div>
-            <div class="col-md-6">
-                <label class="text-dark bold text-dark" for="">Selling Price:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.selling_price}}</p>
-            </div>
+          
+    <!--template 1-->
+    <div id="whatToPrint1" class="printTemplates template1">
+      <div class="page" size="A4" id="Templates">
+        <div class="p-4">
+          <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+            <section>
+              <div class="row py-3 bg-warning align-items-center">
+                <div class="col-3">
+                  <span class="bg-white text-black px-4 py-2" style="border-radius: 3px;">{{over.status}}</span>
+                </div>
+                <div class="col-6">
+                  <h4 class="text-white p-2 fw-bold">EXPENSE DETAILS</h4>
+                </div>
+                <div class="col-3">
+                  <span class="fw-bold me-2 h5 text-white float-end">#{{over.expense_number}}</span>
+                </div>
+              </div>
+            </section>
+            <br>
+            <section class="store-user mt-2">
+              <div class="col-12">
+                <div class="row pb-3">
+                  <div class="col-7">
+                                      <div class="row mt-2 text-black" >
+                      <div class="col-5"><label class="text-black" for="">Vendor Name </label></div>
+                      <div class="col-7">
+                        
+                        <p class="bold text-black"> : {{over.vendor_name}}</p>
+                       
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for="">Email </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black" >  : {{over.vendor_email}}  </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black"> : &nbsp; {{over.vendor_billing_address}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-5"><label class="text-black" for=""> Source of supply </label></div>
+                        <div class="col-7">
+                          <p class="bold text-black"> : &nbsp; {{over.vendor_source_of_supply}} </p>
+                        </div>
+                      </div>
+          
+                  </div>
+                  <div class="col-5">
+                                       <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for="">Customer Name </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.customer_name}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Email </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.customer_email}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.customer_billing_address}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-5"><label class="text-black" for="">Place of supply </label></div>
+                        <div class="col-7">
+                          <p class="bold text-black"> : &nbsp; {{over.customer_price_of_supply }} </p>
+                        </div>
+                      </div>
+              </div>
+                    
+                <hr class="mx-3">
+              </div>
+            </section>
+            <section class="store-user mt-2">
+              <div class="col-12">
+                <div class="row pb-3">
+                  <div class="col-7">
+                                       <div class="row mt-2 text-black" >
+                      <div class="col-5"><label class="text-black" for="">Company Name </label></div>
+                      <div class="col-7">
+                       
+                        <p class="bold text-black"> : {{over.company.company_name}}</p>
+                       
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for="">Email </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black" >  : {{over.login_details.email}}  </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black"> : &nbsp; {{over.company.address}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-5"><label class="text-black" for=""> Contact Number </label></div>
+                        <div class="col-7">
+                          <p class="bold text-black"> : &nbsp; {{over.company.contact}} </p>
+                        </div>
+                      </div>
+         
+                  </div>
+                  <div class="col-5">
+                  
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for="">Expense Date </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.date}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Tax Rate </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.tax_rate}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Payment Method </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  : &nbsp;{{over.payment_type}} </p>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-5"><label class="text-black" for=""></label></div>
+                        <div class="col-7">
+                          <p class="bold text-black">  &nbsp;  </p>
+                        </div>
+                      </div>
+              </div>
+                    
+                <hr class="mx-3">
+              </div>
+            </section>
+            <section class="table-responsive mt-4">
+              <table class=" table table-hover table-bordered border-dark" id="templateTable2">
+                <thead class="bg-warning">
+                  <tr class="text-center text-black" style="font-weight: bold;">
+                    <td>Expense Account</td>
+                    <td>Expense Type</td>
+                    <td>SAC</td>
+                    <td>Amount</td>
+                   
+                  </tr>
+                </thead>
+                <tbody>
+                
+                  <tr class="text-black text-center">
+                    <td style="color:black; text-align: center;">{{over.account}}</td>
+                    <td style="color:black">{{over.expense_type}}</td>
+                    <td style="color:black">{{over.sac_code}}</td>
+                    <td style="color:black">{{over.amount}}</td>
+                   
+                  </tr>
+                
+                </tbody>
+              </table>
+            </section>
+  
+          </div>
         </div>
+      </div>
+    </div>
+
+      
+   
+   <!-- template2 -->
+   <div id="whatToPrint2" class="printTemplates template2" style="display: none;">
+    <div class="page" size="A4" id="Templates">
+      <div class="p-4">
+        <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+          <section>
+            <div class="row py-3 align-items-center">
+              <div class="col-3">
+                <span class="bg-warning text-black px-4 py-2" style="border-radius: 3px;">{{over.status}}</span>
+              </div>
+              <div class="col-6">
+                <h4 class="text-black p-3 fw-bold">EXPENSE DETAILS</h4>
+              </div>
+              <div class="col-3">
+                <span class="fw-bold me-2 h5 text-black float-end"><span class="fw-normal">Expense No.</span><br>#{{over.expense_number}}</span>
+              </div>
+            </div>
+          </section>
+          <hr>
+          <section class="store-user mt-2">
+            <div class="col-12">
+              <div class="row pb-3">
+                <div class="col-7">
+                  <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">VENDOR DETAILS</b>,</p>
+                  <div class="row mt-2 text-black" >
+                    <div class="col-5"><label class="text-black" for="">Vendor Name </label></div>
+                    <div class="col-7">
+                      
+                      <p class="bold text-black"> : {{over.vendor_name}}</p>
+                     
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for="">Email </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black" >  : {{over.vendor_email}}  </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black"> : &nbsp; {{over.vendor_billing_address}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Source of supply </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black"> : &nbsp; {{over.vendor_source_of_supply}} </p>
+                      </div>
+                    </div>
         
-        <div class="row mt-3" >
-            <div class="col-md-6">
-                <label class="text-dark" for="">Purchase Price:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.purchase_price}}</p>
+                </div>
+                <div class="col-5">
+                  <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">CUSTOMER DETAILS</b>,</p>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for="">Customer Name </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.customer_name}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Email </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.customer_email}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.customer_billing_address}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for="">Place of supply </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black"> : &nbsp; {{over.customer_price_of_supply }} </p>
+                      </div>
+                    </div>
             </div>
-            <div class="col-md-6" id="mini">
-                <label class="text-dark" for="">Minimum Stock To Maintain:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.minimum_stock_to_maintain}}</p>
+                  
+              <hr class="mx-3">
             </div>
+          </section>
+          <section class="store-user mt-2">
+            <div class="col-12">
+              <div class="row pb-3">
+                <div class="col-7">
+                  <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">COMPANY DETAILS</b>,</p>
+                  <div class="row mt-2 text-black" >
+                    <div class="col-5"><label class="text-black" for="">Company Name </label></div>
+                    <div class="col-7">
+                     
+                      <p class="bold text-black"> : {{over.company.company_name}}</p>
+                     
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for="">Email </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black" >  : {{over.login_details.email}}  </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Address </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black"> : &nbsp; {{over.company.address}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""> Contact Number </label></div>
+                      <div class="col-7">
+                        <p class="bold text-black"> : &nbsp; {{over.company.contact}} </p>
+                      </div>
+                    </div>
+       
+                </div>
+                <div class="col-5">
+                  <p class="bg-warning" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; width: fit-content; padding: 5px 60px 5px 10px;"><b class="text-black">EXPENSE DETAILS</b>,</p>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for="">Expense Date </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.date}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Tax Rate </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.tax_rate}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-5"><label class="text-black" for=""> Payment Method </label></div>
+                    <div class="col-7">
+                      <p class="bold text-black">  : &nbsp;{{over.payment_type}} </p>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                      <div class="col-5"><label class="text-black" for=""></label></div>
+                      <div class="col-7">
+                        <p class="bold text-black">  &nbsp;  </p>
+                      </div>
+                    </div>
+            </div>
+                  
+              <hr class="mx-3">
+            </div>
+          </section>
+
+
+          <section class="table-responsive mt-4">
+            <table class=" table table-hover table-bordered border-dark" id="templateTable2">
+              <thead class="bg-warning">
+                <tr class="text-center text-black" style="font-weight: bold;">
+                  <td>Expense Account</td>
+                  <td>Expense Type</td>
+                  <td>SAC</td>
+                  <td>Amount</td>
+                 
+                </tr>
+              </thead>
+              <tbody>
+              
+                <tr class="text-black text-center">
+                  <td style="color:black; text-align: center;">{{over.account}}</td>
+                  <td style="color:black">{{over.expense_type}}</td>
+                  <td style="color:black">{{over.sac_code}}</td>
+                  <td style="color:black">{{over.amount}}</td>
+                 
+                </tr>
+              
+              </tbody>
+            </table>
+          </section>
+
+          
+
         </div>
-        
-        <div class="row mt-3" id="stock">
-            <div class="col-md-6">
-                <label class="text-dark" for="">Stock Quantity:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{selitem.opening_stock}}</p>
-            </div>
-            <div class="col-md-6" id="value">
-                <label class="text-dark" for="">Stock Value:</label>
-                <p class="bold text-dark d-inline" style="max-width: 15rem; word-wrap: break-word; font-weight: bold;">{{stock_value}}</p>
-            </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- template3 -->
+  <div id="whatToPrint3" class="printTemplates template3" style="display: none;">
+    <div class="page"  size="A4" >
+        <div class="" id="whatToPrint1">
+            <div class="row">
+                <div class="col-sm-12 py-3" style="background-image: linear-gradient(#ffae1f, black); color: white;">
+                    <p style="font-size: 4vh; text-align: center;">COMPANY DETAILS</p>
+                   
+                    <p style=" text-align: center;"> {{over.company.company_name}} <br>
+                        {{over.company.address}} <br>
+                        {{over.login_details.email}},
+                        <br>
+                        {{over.company.contact}}
+                        <br>
+                    </p>
+                </div>
+               
+                <div class="row col-12">
+                    <!-- <div class="col-md-1"></div> -->
+                    <div class="col-6 py-3 px-5">
+                      <table class="table table-borderless">
+                        <tbody>
+                            <tr >
+                                <td style="color: #000; font-weight: bold;"> CUSTOMER NAME</td>
+                                <td style="color: #000;">:</td>
+                                <td class="text-right" style="color: #000;">{{ over.customer_name }}</td>
+                            </tr>
+                          
+                            
+                            <tr >
+                                <td style="color: #000; font-weight: bold;">EMAIL</td>
+                                <td style="color: #000;">:</td>
+                                <td class="text-right" style="color: #000;">{{over.date}}</td>
+                            </tr>
+
+                            <tr>
+                                <td style="color: #000; font-weight: bold;">ADDRESS</td>
+                                <td style="color: #000;">:</td>
+                                <td class="text-right" style="color: #000;">{{over.tax_rate}}</td>
+                                
+                            </tr>
+
+                            <tr>
+                                <td style="color: #000; font-weight: bold;">PLACE OF SUPPLY</td>
+                                <td style="color: #000;">:</td>
+                                <td class="text-right" style="color: #000;">{{over.payment_type}}</td>
+                                
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    </div>
+                    <!-- <div class="col-md-1"></div> -->
+                    <div class="col-6 py-3 px-3">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr >
+                                    <td style="color: #000; font-weight: bold;"> EXPENSE NO</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{ over.expense_number }}</td>
+                                </tr>
+                              
+                                
+                                <tr >
+                                    <td style="color: #000; font-weight: bold;">EXPENSE Date</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{over.date}}</td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color: #000; font-weight: bold;">TAX RATE</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{over.tax_rate}}</td>
+                                    
+                                </tr>
+
+                                <tr>
+                                    <td style="color: #000; font-weight: bold;">Payment Method</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{over.payment_type}}</td>
+                                    
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-12 px-4">
+                  <table class=" table table-hover table-bordered border-dark" id="templateTable2">
+                    <thead class="bg-warning">
+                      <tr class="text-center text-black" style="font-weight: bold;">
+                        <td>Expense Account</td>
+                        <td>Expense Type</td>
+                        <td>SAC</td>
+                        <td>Amount</td>
+                       
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                      <tr class="text-black text-center">
+                        <td style="color:black; text-align: center;">{{over.account}}</td>
+                        <td style="color:black">{{over.expense_type}}</td>
+                        <td style="color:black">{{over.sac_code}}</td>
+                        <td style="color:black">{{over.amount}}</td>
+                       
+                      </tr>
+                    
+                    </tbody>
+                  </table>
+                </div>
+            </div> 
+            <section class="balance-info mb-4">
+                <div class="row">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-4">
+                        <br>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr >
+                                    <td style="color: #000;">Sub Total</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
+                                </tr>
+                                
+                                {% if invoice.igst != 0 %}
+                                <tr >
+                                    <td style="color: #000;">IGST</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if invoice.cgst != 0 %}
+                                <tr>
+                                    <td style="color: #000;">CGST</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
+                                    
+                                </tr>
+                                {% endif %}
+                                {% if invoice.sgst != 0 %}
+                                <tr>
+                                    <td style="color: #000;">SGST</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
+                                </tr>
+                                {% endif %}
+                                <tr >
+                                    <td style="color: #000;">Tax Amount</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
+                                </tr>
+                                {% if invoice.shipping_charge != 0 %}
+                                <tr >
+                                    <td style="color: #000;">Shipping Charge</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
+                                </tr>
+                                {% endif %}
+                                {% if invoice.adjustment != 0 %}
+                                <tr >
+                                    <td style="color: #000;">Adjustment</td>
+                                    <td style="color: #000;">:</td>
+                                    <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+
+                        </table>
+                        <hr style="background-color: #000000;">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr >
+                                    <th style="color: #000;">Grand Total</th>
+                                    <th style="color: #000;">:</th>
+                                    <th class="text-right" style="color: #000;">{{invoice.grandtotal}}</th>
+                                </tr>
+                                <tr >
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section> 
         </div>
-        
-    
-    <style>
-      .dashed-line {
-        border-top: 1px dashed #000; /* Set color and style */
-        margin: 20px 0; /* Adjust margin for spacing */
-      }
-    </style>
-    
-    <div class="dashed-line"></div>
-  
-    <input type="text" id="searchInput2" class="form-control text-black" style="border-color: rgb(198, 134, 16);background-color: antiquewhite;width: 20%;" placeholder="Search...">
-    <br><br>
-    
-    <table class="table table-hover table-bordered" id="table1" style="border-color: #000000;color: rgb(0, 0, 0);">
-      <thead>
-        <tr>
-          <th id="th" style="text-align: center;">Transactions     
-             <a class="extra text-white" id="fil" style="display: block;" onclick="toggleDropdown(0)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent0">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput0"  />
-                <a class="btn btn-info" onclick="cleardropdown(0)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(0)">Apply</a>
-            </div>
-          </th>
-          <th id="th" style="text-align: center;">Type
-            <a class="extra text-white" id="fil2" style="display: block;"  onclick="toggleDropdown(1)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent1">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput1"  />
-                <a class="btn btn-info" onclick="cleardropdown(1)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(1)">Apply</a>
-            </div>
-          </th>
-          <th id="th" style="text-align: center;">Name 
-            <a class="extra text-white"  id="fil3" style="display: block;"  onclick="toggleDropdown(2)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent2">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput2"  />
-                <a class="btn btn-info" onclick="cleardropdown(2)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(2)">Apply</a>
-            </div></th>
-          <th id="th" style="text-align: center;">Date 
-            <a class="extra text-white" id="fil4" style="display: block;"  onclick="toggleDropdown(3)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent3">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="date" id="filterInput3"  />
-                <a class="btn btn-info" onclick="cleardropdown(3)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(3)">Apply</a>
-            </div>
-          </th>
-          <th id="th" style="text-align: center;">Quantity
-            
-            <a class="extra text-white" id="fil5" style="display: block;"  onclick="toggleDropdown(4)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"> </i></a>
-            <div class="dropdown-content" id="dropdownContent4">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput4"  />
-                <a class="btn btn-info" onclick="cleardropdown(4)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(4)">Apply</a>
-            </div>
-          </th>
-          <th id="th" style="text-align: center;">Price 
-            <a class="extra text-white" id="fil6" style="display: block;"  onclick="toggleDropdown(5)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent5">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput5"  />
-                <a class="btn btn-info" onclick="cleardropdown(5)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(5)">Apply</a>
-            </div>
-          </th>
-          <th id="th" style="text-align: center;">Status   
-            <a class="extra text-white" id="fil7" style="display: block;"  onclick="toggleDropdown(6)">&nbsp;<i class="fa fa-filter" aria-hidden="true" style="color: #000;"></i></a>
-            <div class="dropdown-content" id="dropdownContent6">
-                <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
-                <input type="text" id="filterInput6"  />
-                <a class="btn btn-info" onclick="cleardropdown(6)">Clear</a> 
-                &nbsp;<a class="btn btn-info" onclick="filterTable(6)">Apply</a>
-            </div>  
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-  
-        <tr style="color: black;">  
-          <td style="text-align: center;">{{forloop.counter}}1</td>
-          <td style="text-align: center;">{{selitem.type}}</td>
-          <td style="text-align: center;"></td>
-          <td style="text-align: center;">{{ selitem.date|date:"Y-m-d" }}</td>
-  
-          <td style="text-align: center;">{{selitem.opening_stock}}</td>
-          <td style="text-align: center;">{{selitem.opening_stock_per_unit}}</td>
-          <td style="text-align: center;"></td>
-        </tr>
-  
-        
-        <!-- Add more rows as needed -->
-      </tbody>
-    </table>
+    </div>
+</div>
+
+
+
+</div>
+<div id="templateToggle" class="templateToggleSegment mt-3 mb-0 w-100 d-flex justify-content-center">
+  <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-warning btn-sm m-2 active templateToggleButtons">1</button>
+  <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">2</button>
+  <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-warning btn-sm m-2 templateToggleButtons">3</button>
+</div>
     
     </div>
     </div>
@@ -911,6 +1356,7 @@
     </div>
     </div>
     </div>
+    
     </body>
     <style>
       @media print {
@@ -920,6 +1366,14 @@
       }
   </style>
     <script>
+       function toggleTemplate(templateId,buttonId){
+      $('.printTemplates').css('display','none');
+      $('#'+templateId).css('display','block');
+      $('.templateToggleButtons').removeClass('active');
+      $('#'+buttonId).addClass('active');
+      $("#templatePrintButton").attr("onclick","printSection('"+templateId+"')");
+      document.getElementById('body_wrapper').scrollIntoView();
+    }
     function searchTable() {
       // Declare variables
       var input, filter, table, tr, td, i, txtValue;
@@ -1155,34 +1609,6 @@
   }
   
   
-  function exportToExcel() {
-      var table = document.querySelector('#table1'); // Add # to select by ID
-      var cellsToHide = [
-          { id: 'dropdownContent0', content: 'HideThis' },
-          { id: 'dropdownContent1', content: 'AnotherHiddenValue' },
-          { id: 'dropdownContent2', content: 'HideThis' },
-          { id: 'dropdownContent3', content: 'AnotherHiddenValue' },
-          { id: 'dropdownContent4', content: 'HideThis' },
-          { id: 'dropdownContent5', content: 'AnotherHiddenValue' },
-          { id: 'dropdownContent6', content: 'HideThis' },
-          { id: 'dropdownContent7', content: 'AnotherHiddenValue' },
-          // Add more cell IDs and content as needed
-      ];
-  
-      // Hide the specified content in cells
-      for (var i = 0; i < cellsToHide.length; i++) {
-          var cellInfo = cellsToHide[i];
-          var cell = document.getElementById(cellInfo.id);
-          
-          if (cell) {
-              cell.textContent = '';
-          }
-      }
-      var ws = XLSX.utils.table_to_sheet(table);
-      var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, 'item.xlsx');
-  }
   
   </script>
   
@@ -1227,120 +1653,153 @@
   <!-- history modal -->
   
   
-  <div class="modal fade" id="history" >
-    <div class="modal-dialog modal-xl" >
-      <div class="modal-content" style="background: #1f1f1ffd;border-radius: 20px;">
-        <div class="modal-header" style="background: #1f1f1ffd;">
-          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #e1e1e1;">Transaction History</h5>
-          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
-              aria-hidden="true">&times;</span></button>
+  <div class="modal fade" id="history" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+          <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
+          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+          </button>
         </div>
-        <div class="modal-body" style="background: #1f1f1ffd;;">
-          <div class="card p-3 m-3" style="background-color: #000;">
-          
-            <table style="background-color: #000; margin-right: 10px; border-radius: 5px;">
-              <thead class="text-white">
-                  <tr>
-                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Action</b></th>
-                      <th style="color: rgb(244, 244, 244); padding-bottom: 10px;"><b>Date</b></th>
-                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Name</b></th>
-                  </tr>
-                  <tr>
-                      <td colspan="3" style="border-bottom: 2px solid white; margin-bottom: 10px;"></td>
-                  </tr>
+        <div class="modal-body mx-3" style="background-color: #000000;">
+          <div class="container-fluid history-table-container" >
+            <table class="table text-light table-borderless" style="margin:3px; background-color: #000000;width: 100%;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                  <th>By</th>
+                </tr>
               </thead>
-          
-              <tbody style="background-color: black; padding-top: 20px;"> <!-- Adjusted padding-top for spacing -->
-                  {% for i in latest_item_id %}
-                      <tr style="background-color: black;height: 40px;">
-                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.action }}</td>            
-                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.Date }}</td>
-                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.logindetails.first_name }}&nbsp;{{ i.logindetails.last_name }}</td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-          
+              <tbody>
+                {% for i in history %}
+                <tr>
+                  <td>{{forloop.counter}}</td>
+                  <td>{{i.Date}}</td>
+                  <td>{{i.action}}</td>
+                  <td>{{ i.company.company_name }} </td>
+                </tr>
+                {% endfor %}
+              </tbody>  
+            </table>
           </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
+  
+        </div>
       </div>
-      
+    </div>
   </div>
-  </div></div>
+  
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
   <!-- comment modal -->
-  <div class="modal fade" id="cmnts">
+  <!-- Add Comment  -->
+  <!-- Add Comment  -->
+  <div class="modal fade" id="ExpenseComment">
     <div class="modal-dialog modal-xl">
-      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-        <div class="modal-header" style="background: rgb(32, 35, 37);">
-          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #fefefe;">Comments</h5>
-          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
-              aria-hidden="true">&times;</span></button>
+      <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+          <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
+          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+          </button>
         </div>
-        <div class="modal-body" style="background: rgb(32, 35, 37);">
-          <div class="card p-3 m-3">
-            <form action="" method="post" class="needs-validation"
-              id="share_to_email_form" autocomplete="off">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="emailIds" style="color: #000;">Enter Comment</label>
-                <textarea class="form-control text-dark"  style="color: #000;" name="comment" id="comment" rows="5"
-                  placeholder="MEnter your comment here" required></textarea>
+        <div class="modal-body mx-3" style="background-color: #000;">
+          <form action="{% url 'add_expense_comment' over.id %}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+            {%csrf_token%}
+            <div class="row mt-2">
+              <div class="col-12">
+                <textarea type="text" rows="4" class="form-control text-white" name="comments" placeholder="Add Comments.." required></textarea>
+                {% if comments %}
+                <div class="container-fluid comments-table-container">
+                    <table class="table table-borderless mt-4">
+                        <thead>
+                            <tr>
+                                <th class="text-center">sl no.</th>
+                                <th class="text-center">Comment</th>
+                                <th class="text-center">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in comments %}
+                            <tr class="">
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td class="text-center">{{ c.comments }}</td>
+                                <td class="text-center">
+                                    <a class="text-danger" href="{% url 'delete_expense_comment' c.id %}" onclick="return confirm('Are you sure you want to delete.?')">
+                                        <i class="fa fa-trash" style="font-size: 1.1rem;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No comments available.</p>
+            {% endif %}
+            
               </div>
-             
-       
-          </div>
-          <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
-            <!-- <button type="submit">submit</button> -->
-            <input type="submit" id="share_with_email"
-              class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3"  style="background-color: #222121; color: #e1e1e1;" value="Save">
-          </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit">Save</button> 
+                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" data-dismiss="modal" type="reset" value="Close">
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
         </div>
-      </form>
+        <div class="modal-footer"></div>
       </div>
     </div>
   </div>
-  
-  
-  <div class="modal fade" id="cmt_list">
+
+  <div class="modal fade" id="bnk_files">
     <div class="modal-dialog modal-xl">
-      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-        <div class="modal-header" style="background: rgb(32, 35, 37);">
-          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #eeeaea;">Comments</h5>
-          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
-              aria-hidden="true">&times;</span></button>
+      <div class="modal-content" style="background-color: #3b3b3b;">
+        <div class="modal-header">
+          <h3 class="modal-title text-light" id="exampleModalLabel">Add Documents</h3>
+          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+          </button>
         </div>
-        <div class="modal-body" style="background: rgb(32, 35, 37);">
-          <div class="card p-3 m-3" style="background-color: #000;">
-          
-            <table style="background-color: #000; margin-right: 10px; border-radius: 5px;">
-              <thead class="text-white">
-                  <tr>
-                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Comments</b></th>
-                      <th style="color: rgb(244, 244, 244); padding-bottom: 10px;"><b></b></th>
-                      <th style="color: rgb(250, 247, 242); padding-bottom: 10px;"><b>Delete</b></th>
-                  </tr>
-                  <tr>
-                      <td colspan="3" style="border-bottom: 2px solid white; margin-bottom: 10px;"></td>
-                  </tr>
-              </thead>
-          
-              <tbody style="background-color: black; padding-top: 20px;"> <!-- Adjusted padding-top for spacing -->
-                {% for i in est_comments %}
-                      <tr style="background-color: black;height: 40px;">
-                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;">{{ i.comments }}</td>            
-                          <td class="text-white" style="color: rgb(0, 0, 0); background-color: black; padding-bottom: 10px;"></td>
-                         
-                      </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-   
-  
-  
+        <div class="modal-body mx-3" style="background-color: #000;">
+          <form action="{% url 'attachexpenseFile' over.id %}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+            {%csrf_token%}
+            <div class="row mt-2">
+              <div class="col-md-3">
+                <label class="pt-2" for="origin" style="color: white;">Add File</label>
+              </div>
+              <div class="col-md-9">
+                <input type="file" class="form-control text-white bg-black" name="file" id="filess">
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-4"></div>
+              <div class="col-md-4">
+                <div class="d-flex">
+                  <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit">Save</button> 
+                  <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" data-dismiss="modal" type="reset" value="Reset">
+                </div>
+              </div>
+              <div class="col-md-4"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer"></div>
       </div>
     </div>
   </div>
-  </div>
-  </div>
+  
+  
   <script>
     function sortTable(columnIndex) {
        const table = document.getElementById("table2");
@@ -1468,100 +1927,14 @@
       // You can add any additional logic or calculations here
     }
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+  <script>
+    function export_as_pdf() {
+      const content = document.getElementById('Templates');
+      html2pdf().from(content).save('{{over.expense_type }}.pdf');
+    }
+  </script>
   
-  <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content" style="background-color: #3b3b3b;">
-        <div class="modal-header">
-          <h3 class="modal-title text-light" id="exampleModalLabel">Add Comments</h3>
-          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
-          </button>
-        </div>
-        <form action="" method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="modal-body">
-            <textarea type="text" class="form-control text-light" name="comment"></textarea>
-            <div class="container-fluid">
-              <table class="table  text-white">
-                <thead>
-                  <tr>
-                    <th style="text-align: center; font-size: large;">sl no.</th>
-                    <th style="text-align: center; font-size: large;">Comments</th>
-                    <th style="text-align: center; font-size: large;">Delete</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for c in est_comments %}
-                    <tr class="table-row">
-                      <td style="text-align: center;">{{forloop.counter }}</td>
-                      <td style="text-align: center;">{{c.comments}}</td>
-                      <td style="text-align: center;">
-                        <a class="text-danger" href=""><i class="fa fa-trash" style="font-size:20px;"></i></a>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-outline-warning">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  
-  
-  <div class="modal fade" id="commentModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  aria-hidden="true" style="margin-top: 8vh;width: 100%;">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content" style="background-color: #3b3b3b;">
-        <div class="modal-header">
-          <h3 class="modal-title text-light" id="exampleModalLabel">HISTORY</h3>
-          <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true" style="font-size: x-large;">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-        <div class="container " >
-          <table class="table text-light table-borderless " style="margin:3px; background-color: #000000;width: 100%;">
-            <thead>
-              <tr>
-                <th>
-                  sl
-                </th>
-                <th>
-                  Date
-                </th>
-                <th>
-                  Action
-                </th>
-                <th>
-                  By
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for i in latest_item_id %}
-              <tr>
-                <td>{{forloop.counter}}</td>
-                <td>{{i.Date}}</td>
-                <td>{{i.action}}</td>
-                <td>{{ i.logindetails.first_name }}&nbsp;{{ i.logindetails.last_name }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>  
-          </table>
-        </div>
-      </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-warning" data-dismiss="modal">Close</button>
-  
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
+ 
 {% endblock %}

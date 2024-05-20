@@ -657,36 +657,132 @@ def staff_password_change(request):
 
 #--------------------------------------------------- TINTO VIEW ITEMS START-------------------------------------------
 # expense
-def expense(request): 
-    expenses = Expense.objects.all()
-    return render(request,'zohomodules/expense/expense.html',{'expenses': expenses})   
 
-def create_expense(request): 
-    customers = Customer.objects.all()
-    vendor=Vendor.objects.all()
-    account= Chart_of_Accounts.objects.all()
-    bank=Banking.objects.all()
-    return render(request,'zohomodules/expense/creation expense.html', {'c': customers, 'v' : vendor, 'a':account, 'b':bank})   
+def expense(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
 
-def expense_overview(request, expense_id): 
-    # Assuming 'user' is the correct attribute to get the user ID
-   # over = Expense.objects.all()
-    expenses = Expense.objects.all()
-    over  = get_object_or_404(Expense, pk=expense_id)
-    return render(request,'zohomodules/expense/expenseoverview.html', {'over': over,'exp':expenses})
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+
+            
+        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
+        expenses = Expense.objects.filter(company=comp_details)
+        
+
+        
+
+        return render(request,'zohomodules/expense/expense.html',{'details':dash_details,'allmodules': allmodules,'expenses':expenses,'log_details':log_details}) 
+
+
+    else:
+        return redirect('/')
+    
+def create_expense(request):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+
+            
+        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
+        
+        customers = Customer.objects.all()
+        vendor=Vendor.objects.all()
+        account= Chart_of_Accounts.objects.all()
+        bank=Banking.objects.all()
+        acc =  Chart_of_Accounts.objects.all()
+        comp_payment_terms=Company_Payment_Term.objects.filter(company=dash_details)
+        price_lists = PriceList.objects.filter(type='Sales',company=dash_details)
+
+       
+        return render(request,'zohomodules/expense/creation expense.html',{'details':dash_details,'allmodules': allmodules,'log_details':log_details,'c': customers, 'v' : vendor, 'a':account, 'b':bank,'acc':acc, 'p': comp_payment_terms, 'price':  price_lists}) 
+    else:
+        return redirect('/')  
+
+
+from django.http import Http404
+
+def expense_overview(request,expense_id):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+
+            
+        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
+        expenses = Expense.objects.all()
+       
+        over  = get_object_or_404(Expense, pk=expense_id)
+   
+        #comments  = get_object_or_404(expense_comments, pk=expense_id)
+        comments = expense_comments.objects.filter(expense=over) 
+        history =  ExpenseHistory.objects.filter(expense=over) 
+
+       
+    
+    content = {
+                'details': dash_details,
+               
+                'allmodules': allmodules,
+                'log_details':log_details,
+                'over': over,'exp':expenses,'comments':comments,'history':history
+               
+        }
+    return render(request,'zohomodules/expense/expenseoverview.html',content)    
+
+
 
 
 
 
 def create_expense1(request):
     if request.method == 'POST':
+        log_id = request.session['login_id']
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            cmp = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            cmp = StaffDetails.objects.get(login_details=log_details).company
+
         date = request.POST.get('date')
         account = request.POST.get('account')
         expense_type = request.POST.get('expense_type')
         hsn_code = request.POST.get('hsn_code')
         sac_code = request.POST.get('sac_code')
         expense_number = request.POST.get('expense_number')
-        reference_number = request.POST.get('referense_number')
         amount = request.POST.get('amount')
         tax_rate = request.POST.get('tax_rate')
         payment_type = request.POST.get('payment_type')
@@ -703,16 +799,18 @@ def create_expense1(request):
         customer_price_of_supply = request.POST.get('customer_price_of_supply')
         customer_billing_address = request.POST.get('customer_billing_address')
         note = request.POST.get('note')
+        status = request.POST.get('status', 'draft')
 
         # Create Expense object
         expense = Expense.objects.create(
+            company=cmp,
+            login_details=log_details,
             date=date,
             account=account,
             expense_type=expense_type,
             hsn_code=hsn_code,
             sac_code=sac_code,
             expense_number=expense_number,
-            reference_number=reference_number,
             amount=amount,
             tax_rate=tax_rate,
             payment_type=payment_type,
@@ -729,7 +827,7 @@ def create_expense1(request):
             customer_price_of_supply=customer_price_of_supply,
             customer_billing_address=customer_billing_address,
             note=note,
-            status="inactive"
+            status=status
         )
 
         # Handle file upload
@@ -738,20 +836,51 @@ def create_expense1(request):
             expense.avatar = avatar
             expense.save()
 
+        # Create ExpenseHistory object
+        ExpenseHistory.objects.create(
+            company=cmp,
+            logindetails=log_details,
+            expense=expense,
+            Date=date,
+            action='Created'
+        )
+
         return redirect('expense')  # Redirect to success URL
     else:
         return render(request, 'create_expense.html')
-    
 
-def edit_expense(request, pk):
-    
-     #x = CustomUser.objects.get(id=pk)
-     edit=Expense.objects.get(id=pk)
-     customers = Customer.objects.all()
-     vendor=Vendor.objects.all()
-    # edit=Expense.objects.all()
      
-     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit,'c': customers, 'v' : vendor} )      
+
+def edit_expense(request,pk):
+    if 'login_id' in request.session:
+        if request.session.has_key('login_id'):
+            log_id = request.session['login_id']
+           
+        else:
+            return redirect('/')
+    
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type=='Staff':
+            dash_details = StaffDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
+
+        else:    
+            dash_details = CompanyDetails.objects.get(login_details=log_details)
+            comp_details=CompanyDetails.objects.get(login_details=log_details)
+
+            
+        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
+        
+        edit=Expense.objects.get(id=pk)
+        customers = Customer.objects.all()
+        vendor=Vendor.objects.all()
+
+       
+        return render(request,'zohomodules/expense/editexpense.html',{'details':dash_details,'allmodules': allmodules,'log_details':log_details,'edit':edit,'c': customers, 'v' : vendor}) 
+    else:
+        return redirect('/')  
+
+
 
 def edit_expense1(request, pk):
     
@@ -785,6 +914,7 @@ def edit_expense1(request, pk):
         edit.note = request.POST.get('note')
         edit.save()
 
+        return redirect('expense')  # Redirect to success URL
      
      return render(request,'zohomodules/expense/editexpense.html',{'edit':edit} )  
 
@@ -792,11 +922,11 @@ def expense_status(request, pv):                                                
     
     selitem = Expense.objects.get(id=pv)
 
-    if selitem.status == 'Active':
-        selitem.status = 'inactive'
+    if selitem.status == 'save':
+        selitem.status = 'draft'
         selitem.save()
-    elif selitem.status != 'Active':
-        selitem.status = 'Active'
+    elif selitem.status != 'save':
+        selitem.status = 'save'
         selitem.save()
 
     selitem.save()
@@ -847,6 +977,8 @@ def getCustomerDetailsAjax(request):
             return JsonResponse({'status':False, 'message':'Something went wrong..!'})
     else:
        return redirect('/')
+    
+
 
 def getvendorDetailsAjax(request):
     if 'login_id' in request.session:
@@ -869,8 +1001,556 @@ def getvendorDetailsAjax(request):
         else:
             return JsonResponse({'status':False, 'message':'Something went wrong..!'})
     else:
-       return redirect('/')       
+       return redirect('/')  
     
+def newPaymentTermAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        term = request.POST['term']
+        days = request.POST['days']
+
+        if not Company_Payment_Term.objects.filter(company = com, term_name__iexact = term).exists():
+            Company_Payment_Term.objects.create(company = com, term_name = term, days =days)
+            
+            list= []
+            terms = Company_Payment_Term.objects.filter(company = com)
+
+            for term in terms:
+                termDict = {
+                    'name': term.term_name,
+                    'id': term.id,
+                    'days':term.days
+                }
+                list.append(termDict)
+
+            return JsonResponse({'status':True,'terms':list},safe=False)
+        else:
+            return JsonResponse({'status':False, 'message':f'{term} already exists, try another.!'})
+
+    else:
+        return redirect('/')
+
+
+def newvendorPaymentTermAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details=log_details)
+        else:
+            com = StaffDetails.objects.get(login_details=log_details).company
+
+        term = request.POST.get('term')
+        days = request.POST.get('days')
+
+        if term and days:  # Check if term and days are provided
+            if not Company_Payment_Term.objects.filter(company=com, term_name__iexact=term).exists():
+                Company_Payment_Term.objects.create(company=com, term_name=term, days=days)
+
+                terms = Company_Payment_Term.objects.filter(company=com)
+                term_list = [{'name': term.term_name, 'id': term.id, 'days': term.days} for term in terms]
+
+                return JsonResponse({'status': True, 'terms': term_list}, safe=False)
+            else:
+                return JsonResponse({'status': False, 'message': f'{term} already exists, try another.!'})
+        else:
+            return JsonResponse({'status': False, 'message': 'Invalid input. Please provide both term and days.'})
+
+    else:
+        return redirect('/')
+
+    
+def newSalesCustomerAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        if Customer.objects.filter(company = com, GST_number=request.POST['gst_number']).exists():
+            return JsonResponse({'status':False, 'message':'GSTIN already exists'})
+        elif Customer.objects.filter(company = com, PAN_number=request.POST['pan_number']).exists():
+            return JsonResponse({'status':False, 'message':'PAN No. already exists'})
+        elif Customer.objects.filter(company = com, customer_email=request.POST['vendor_email']).exists():
+            return JsonResponse({'status':False, 'message':'Email already exists'})
+        elif Customer.objects.filter(company = com, customer_phone=request.POST['w_phone']).exists():
+            return JsonResponse({'status':False, 'message':'Work Phone no. already exists'})
+        elif Customer.objects.filter(company = com, customer_mobile=request.POST['m_phone']).exists():
+            return JsonResponse({'status':False, 'message':'Mobile No. already exists'})
+
+        if request.method=="POST":
+            customer_data=Customer()
+            customer_data.login_details=com.login_details
+            customer_data.company=com
+            customer_data.customer_type = request.POST.get('type')
+
+            customer_data.title = request.POST.get('salutation')
+            customer_data.first_name=request.POST['first_name']
+            customer_data.last_name=request.POST['last_name']
+            customer_data.company_name=request.POST['company_name']
+            customer_data.customer_display_name=request.POST['v_display_name']
+            customer_data.customer_email=request.POST['vendor_email']
+            customer_data.customer_phone=request.POST['w_phone']
+            customer_data.customer_mobile=request.POST['m_phone']
+            customer_data.skype=request.POST['skype_number']
+            customer_data.designation=request.POST['designation']
+            customer_data.department=request.POST['department']
+            customer_data.website=request.POST['website']
+            customer_data.GST_treatement=request.POST['gst']
+            customer_data.customer_status="Active"
+            customer_data.remarks=request.POST['remark']
+            customer_data.current_balance=request.POST['opening_bal']
+
+            x=request.POST['gst']
+            if x=="Unregistered Business-not Registered under GST":
+                customer_data.PAN_number=request.POST['pan_number']
+                customer_data.GST_number="null"
+            else:
+                customer_data.GST_number=request.POST['gst_number']
+                customer_data.PAN_number=request.POST['pan_number']
+
+            customer_data.place_of_supply=request.POST['source_supply']
+            customer_data.currency=request.POST['currency']
+            op_type = request.POST.get('op_type')
+            if op_type is not None:
+                customer_data.opening_balance_type = op_type
+            else:
+                customer_data.opening_balance_type ='Opening Balance not selected'
+
+            customer_data.opening_balance=request.POST['opening_bal']
+            customer_data.company_payment_terms= None if request.POST['payment_terms'] == "" else Company_Payment_Term.objects.get(id=request.POST['payment_terms'])
+            # customer_data.price_list=request.POST['plst']
+            plst=request.POST.get('plst')
+            if plst!=0:
+                    customer_data.price_list=plst
+            else:
+                customer_data.price_list='Price list not selected'
+
+
+
+
+            # customer_data.portal_language=request.POST['plang']
+            plang=request.POST.get('plang')
+            if plang!=0:
+                    customer_data.portal_language=plang
+            else:
+                customer_data.portal_language='Portal language not selected'
+
+            customer_data.facebook=request.POST['fbk']
+            customer_data.twitter=request.POST['twtr']
+            customer_data.tax_preference=request.POST['tax1']
+
+            type=request.POST.get('type')
+            if type is not None:
+                customer_data.customer_type=type
+            else:
+                customer_data.customer_type='Customer type not selected'
+
+
+
+
+            
+            customer_data.billing_attention=request.POST['battention']
+            customer_data.billing_country=request.POST['bcountry']
+            customer_data.billing_address=request.POST['baddress']
+            customer_data.billing_city=request.POST['bcity']
+            customer_data.billing_state=request.POST['bstate']
+            customer_data.billing_pincode=request.POST['bzip']
+            customer_data.billing_mobile=request.POST['bphone']
+            customer_data.billing_fax=request.POST['bfax']
+            customer_data.shipping_attention=request.POST['sattention']
+            customer_data.shipping_country=request.POST['s_country']
+            customer_data.shipping_address=request.POST['saddress']
+            customer_data.shipping_city=request.POST['scity']
+            customer_data.shipping_state=request.POST['sstate']
+            customer_data.shipping_pincode=request.POST['szip']
+            customer_data.shipping_mobile=request.POST['sphone']
+            customer_data.shipping_fax=request.POST['sfax']
+            customer_data.save()
+            
+            vendor_history_obj=CustomerHistory()
+            vendor_history_obj.company=com
+            vendor_history_obj.login_details=com.login_details
+            vendor_history_obj.customer=customer_data
+            vendor_history_obj.date=date.today()
+            vendor_history_obj.action='Completed'
+            vendor_history_obj.save()
+
+            vdata=Customer.objects.get(id=customer_data.id)
+            rdata=Customer_remarks_table()
+            rdata.remarks=request.POST['remark']
+            rdata.company=com
+            rdata.customer=vdata
+            rdata.save()
+
+        
+            title =request.POST.getlist('tsalutation[]')
+            first_name =request.POST.getlist('tfirstName[]')
+            last_name =request.POST.getlist('tlastName[]')
+            email =request.POST.getlist('tEmail[]')
+            work_phone =request.POST.getlist('tWorkPhone[]')
+            mobile =request.POST.getlist('tMobilePhone[]')
+            skype_name_number =request.POST.getlist('tSkype[]')
+            designation =request.POST.getlist('tDesignation[]')
+            department =request.POST.getlist('tDepartment[]') 
+            vdata=Customer.objects.get(id=customer_data.id)
+
+            if len(title)==len(first_name)==len(last_name)==len(email)==len(work_phone)==len(mobile)==len(skype_name_number)==len(designation)==len(department):
+                mapped2=zip(title,first_name,last_name,email,work_phone,mobile,skype_name_number,designation,department)
+                mapped2=list(mapped2)
+                print(mapped2)
+                for ele in mapped2:
+                    CustomerContactPersons.objects.create(title=ele[0],first_name=ele[1],last_name=ele[2],email=ele[3],work_phone=ele[4],mobile=ele[5],skype=ele[6],designation=ele[7],department=ele[8],company=com,customer=vdata)
+        
+            return JsonResponse({'status':True})
+        else:
+            return JsonResponse({'status':False})
+
+def getCustomersAjax(request):
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+
+        options = {}
+        option_objects = Customer.objects.filter(company = com, customer_status = 'Active')
+        for option in option_objects:
+            options[option.id] = [option.id , option.title, option.first_name, option.last_name]
+
+        return JsonResponse(options)
+    else:
+        return redirect('/')
+
+
+
+
+def check_vendor_email_exist(request):
+    if request.method == 'GET':
+       vvendoremail = request.GET.get('vvendor_email', None)
+
+       if vvendoremail:
+          
+            exists = Vendor.objects.filter(
+                    vendor_email=vvendoremail
+                ).exists()
+            return JsonResponse({'exists': exists})          
+    else:
+        return JsonResponse({'exists': False}) 
+
+
+
+def add_expense_comment(request,expense_id):
+
+
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        login_d = LoginDetails.objects.get(id=log_id)
+
+        if login_d.user_type == 'Company':
+            expense = Expense.objects.get(id=expense_id)
+            company = CompanyDetails.objects.get(login_details=login_d)
+
+            comments=request.POST['comments']
+
+            expense = Expense.objects.get(id=expense_id)
+
+            c1 = expense_comments(expense=expense,comments=comments,company=company)
+            c1.save()
+
+
+
+            return redirect(reverse('expense_overview', args=[expense_id]))
+
+        if login_d.user_type == 'Staff':
+            expense = Expense.objects.get(id=expense_id)
+            company = CompanyDetails.objects.get(login_details=login_d)
+
+            comments=request.POST['comments']
+
+            expense = Expense.objects.get(id=expense_id)
+
+            c1 = expense_comments(expense=expense,comments=comments,company=company)
+            c1.save()
+
+    
+            return redirect(reverse('expense_overview', args=[expense_id]))
+
+
+    else:
+        return('/')  
+
+
+
+
+
+
+
+def delete_expense_comment(request, pk):
+    try:
+        comment = expense_comments.objects.get(id=pk)
+        expense_id = comment.expense.id  # Get the expense ID before deleting the comment
+        comment.delete()
+        # Redirect to the expense overview page or wherever you want to redirect after deletion
+        return redirect('expense_overview', expense_id=expense_id)
+    except expense_comments.DoesNotExist:
+        return HttpResponseNotFound("Comment not found.")
+
+def attachexpenseFile(request, id):
+    if 'login_id' in request.session:
+        exp = Expense.objects.get(id = id)
+
+        if request.method == 'POST' and len(request.FILES) != 0:
+            exp.avatar = request.FILES.get('file')
+            exp.save()
+
+        return redirect(expense_overview, id)
+    else:
+        return redirect('/')
+
+def check_vendor_work_phone_exist(request):
+    if request.method == 'GET':
+        vendorwPhone = request.GET.get('vendorw_Phone', None)
+
+        if vendorwPhone is not None:  # Ensure the parameter is provided
+            exists = Vendor.objects.filter(phone=vendorwPhone).exists()
+            return JsonResponse({'exists': exists})
+        else:
+            return JsonResponse({'exists': False})  # Return False if parameter is not provided
+    else:
+        return JsonResponse({'exists': False})  # Return False for non-GET requests
+  
+def check_vendor_phonenumber_exist(request):
+    if request.method == 'GET':
+       vendormPhone = request.GET.get('vendorm_Phone', None)
+
+       if vendormPhone:
+          
+            exists = Vendor.objects.filter(
+                    mobile=vendormPhone
+                ).exists()
+            return JsonResponse({'exists': exists})          
+    else:
+        return JsonResponse({'exists': False}) 
+
+def vendor_check_pan(request):
+    if request.method == 'POST':
+        vendorpanNumber = request.POST.get('vendorpanInput')  # Retrieve the PAN number from the POST data
+        vendorpan_exists = Vendor.objects.filter(pan_number=vendorpanNumber).exists()
+
+        if vendorpan_exists:
+            return JsonResponse({'status': 'exists'})
+        else:
+            return JsonResponse({'status': 'not_exists'})
+    else:
+        return JsonResponse({'error': 'Invalid request'})
+
+
+def vendor_check_gst(request):
+    if request.method == 'POST':
+        gstNumber = request.POST.get('gstNumber')
+        gst_exists = Vendor.objects.filter(GST_number=gstNumber).exists()
+       
+        if gst_exists:
+            return JsonResponse({'status': 'exists'})
+        else:
+            return JsonResponse({'status': 'not_exists'})
+    else:
+        return JsonResponse({'error': 'Invalid request'}) 
+import json 
+def newVendorAjax(request):
+    if request.method == 'POST':
+        log_id = request.session.get('login_id')
+        log_details = get_object_or_404(LoginDetails, id=log_id)
+
+        if log_details.user_type == 'Company':
+            company = get_object_or_404(CompanyDetails, login_details=log_details)
+        else:
+            staff = get_object_or_404(StaffDetails, login_details=log_details)
+            company = staff.company
+
+        # Retrieve data from the POST request
+        vendorsalutation = request.POST.get('title')
+        vendorfirst_name = request.POST.get('first_name')
+        vendorlast_name = request.POST.get('last_name')
+        vvendor_display_name = request.POST.get('vendor_display_name')
+        vcompany_name = request.POST.get('company_name')
+        vvendor_email = request.POST.get('vendor_email')
+        vendormobile = request.POST.get('mobile')
+        vendorw_phone = request.POST.get('phone')
+        vendorgst = request.POST.get('gst_treatment')
+        vendorgst_number = request.POST.get('gst_number')
+        vendorpan_number = request.POST.get('pan_number')
+        vendorskype_number = request.POST.get('skype_name_number')
+        vendordesignation = request.POST.get('designation')
+        vendordepartment = request.POST.get('department')
+        vendorwebsite = request.POST.get('website')
+        vendorbatten = request.POST.get('billing_attention')
+        vendorbadd1 = request.POST.get('billing_address')
+        vendorbcountry = request.POST.get('billing_country')
+        vendorbcity = request.POST.get('billing_city')
+        vendorbstate = request.POST.get('billing_state')
+        vendorbzip = request.POST.get('billing_pin_code')
+        vendorbphone = request.POST.get('billing_phone')
+        vendorbfax = request.POST.get('billing_fax')
+        vendorsatten = request.POST.get('shipping_attention')
+        vendorsadd1 = request.POST.get('shipping_address')
+        vendorscountry = request.POST.get('shipping_country')
+        vendorscity = request.POST.get('shipping_city')
+        vendorsstate = request.POST.get('shipping_state')
+        vendorszip = request.POST.get('shipping_pin_code')
+        vendorsphone = request.POST.get('shipping_phone')
+        vendorsfax = request.POST.get('shipping_fax')
+        vendorsource_supply = request.POST.get('source_of_supply')
+        vendorcurrency = request.POST.get('currency')
+        vendorop_type = request.POST.get('opening_balance_type')
+        vendoropening_bal = request.POST.get('opening_balance')
+        vendorcredit_lm = request.POST.get('credit_limit')
+        vendorremark = request.POST.get('remark', '')  # Retrieve remarks
+
+        # Create a new Vendor instance with the retrieved data
+        new_vendor = Vendor.objects.create(
+            company=company,
+            login_details=log_details,
+            title=vendorsalutation,
+            first_name=vendorfirst_name,
+            last_name=vendorlast_name,
+            vendor_display_name=vvendor_display_name,
+            company_name=vcompany_name,
+            vendor_email=vvendor_email,
+            mobile=vendormobile,
+            gst_treatment=vendorgst,
+            gst_number=vendorgst_number,
+            pan_number=vendorpan_number,
+            skype_name_number=vendorskype_number,
+            designation=vendordesignation,
+            department=vendordepartment,
+            website=vendorwebsite,
+            billing_attention=vendorbatten,
+            billing_address=vendorbadd1,
+            billing_country=vendorbcountry,
+            billing_city=vendorbcity,
+            billing_state=vendorbstate,
+            billing_pin_code=vendorbzip,
+            billing_fax=vendorbfax,
+            shipping_attention=vendorsatten,
+            shipping_address=vendorsadd1,
+            shipping_country=vendorscountry,
+            shipping_city=vendorscity,
+            shipping_state=vendorsstate,
+            shipping_pin_code=vendorszip,
+            shipping_fax=vendorsfax,
+            source_of_supply=vendorsource_supply,
+            currency=vendorcurrency,
+            opening_balance_type=vendorop_type,
+            opening_balance=vendoropening_bal,
+            credit_limit=vendorcredit_lm
+        )
+
+        # Only set phone fields if they are provided
+        if vendorw_phone:
+            new_vendor.phone = vendorw_phone
+        if vendorbphone:
+            new_vendor.billing_phone = vendorbphone
+        new_vendor.save()
+
+        # Associate the remark with the new vendor
+        Vendor_remarks_table.objects.create(
+            vendor=new_vendor,
+            company=company,
+            remarks=vendorremark  # Save the remarks, even if empty
+        )
+
+        # Retrieve contact persons details
+        contact_persons_data = json.loads(request.POST.get('vendorcontact_person', '[]'))
+        for i in range(len(contact_persons_data.get('title', []))):
+            VendorContactPerson.objects.create(
+                vendor=new_vendor,
+                salutation=contact_persons_data['title'][i],
+                first_name=contact_persons_data['first_name'][i],
+                last_name=contact_persons_data['last_name'][i],
+                email=contact_persons_data['email'][i],
+                work_phone=contact_persons_data['work_phone'][i],
+                mobile_phone=contact_persons_data['mobile'][i],
+                skype_number=contact_persons_data['skype_name_number'][i],
+                designation=contact_persons_data['designation'][i],
+                department=contact_persons_data['department'][i],
+            )
+
+        # Return a JSON response indicating success
+        return JsonResponse({'message': 'Vendor and contact persons created successfully'}, status=201)
+
+    # If the request method is not POST, return an error response
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def get_vendor_data(request):
+    if request.method == "GET":
+        vendors = Vendor.objects.all().values('id', 'title', 'first_name', 'last_name')
+        vendors_list = list(vendors)
+        return JsonResponse(vendors_list, safe=False)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=400)
+
+
+
+        
+
+def import_expense(request):
+    if request.method == 'POST' and 'excel_file' in request.FILES:
+        excel_file = request.FILES['excel_file']
+        workbook = load_workbook(excel_file)
+        worksheet = workbook.active
+
+        for row in worksheet.iter_rows(min_row=2, values_only=True):
+            # Check if vendor_gstin field is not empty
+            vendor_gstin = row[11]
+            if vendor_gstin:
+                # Create Expense object if vendor_gstin is not empty
+                expense = Expense.objects.create(
+                    date=row[0],
+                    account=row[1],
+                    expense_type=row[2],
+                    hsn_code=row[3],
+                    sac_code=row[4],
+                    expense_number=row[5],
+                    amount=row[6],
+                    tax_rate=row[7],
+                    payment_type=row[8],
+                    vendor_name=row[9],
+                    vendor_email=row[10],
+                    vendor_gstin=vendor_gstin,
+                    vendor_gst_type=row[12],
+                    vendor_source_of_supply=row[13],
+                    vendor_billing_address=row[14],
+                    customer_name=row[15],
+                    customer_email=row[16],
+                    customer_gstin=row[17],
+                    customer_gst_type=row[18],
+                    customer_price_of_supply=row[19],
+                    customer_billing_address=row[20],
+                    note=row[21],
+                    status=row[22],
+                )
+                expense.save()
+
+        return redirect('expense')  # Redirect to expense list page after successful import
+
+    return render(request, 'import_expense.html')
+
+
+
+ #/expense  
 def items_list(request):                                                                
      if 'login_id' in request.session:
         login_id = request.session['login_id']
@@ -10165,6 +10845,8 @@ def add_customer(request):
             customer_data.last_name=request.POST['last_name']
             customer_data.company_name=request.POST['company_name']
             customer_data.customer_display_name=request.POST['v_display_name']
+           # customer_data.customer_display_name = request.POST.get('v_display_name', '')
+
             customer_data.customer_email=request.POST['vendor_email']
             customer_data.customer_phone=request.POST['w_phone']
             customer_data.customer_mobile=request.POST['m_phone']

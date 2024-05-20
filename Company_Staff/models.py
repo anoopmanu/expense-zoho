@@ -975,6 +975,9 @@ class EmployeeLoanRepaymentHistory(models.Model):
 
   #expense  
 class Expense(models.Model):
+    #company = models.ForeignKey(CompanyDetails, on_delete=models.CASCADE)
+    login_details = models.ForeignKey(LoginDetails, on_delete=models.CASCADE,null=True,blank=True)
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True,blank=True)
     date = models.DateField()
     account = models.CharField(max_length=100)
     expense_type = models.CharField(max_length=100, null=True)
@@ -1000,3 +1003,16 @@ class Expense(models.Model):
     note = models.TextField(null=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     status = models.CharField(max_length=20, null=True)
+
+class expense_comments(models.Model):                                              
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE,null=True)
+    logindetails=models.ForeignKey(LoginDetails,on_delete=models.CASCADE,null=True)
+    expense=models.ForeignKey(Expense,on_delete=models.CASCADE,null=True)
+    comments = models.CharField(max_length=255,null=True,blank=True)    
+
+class ExpenseHistory(models.Model):
+    company=models.ForeignKey(CompanyDetails,on_delete=models.CASCADE)
+    logindetails=models.ForeignKey(LoginDetails,on_delete=models.CASCADE)
+    expense=models.ForeignKey(Expense,on_delete=models.CASCADE)
+    Date=models.DateField(null=True)
+    action=models.CharField(max_length=255,default='Created')    

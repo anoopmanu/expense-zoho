@@ -345,13 +345,14 @@
                         </a>
                         <a class="btn btn-outline-warning small_btn mt-2" data-toggle="dropdown">
                           <i class="fas fa-paperclip"></i>
-                        </a>
-                        <div class="dropdown-menu">
+                      </a>
+                      <div class="dropdown-menu">
                           <a class="dropdown-item text-black" data-toggle="modal" data-target="#bnk_files">Add Document</a>
-                          {% if bnk.document != "" %} 
-                          <a class="dropdown-item text-black" download href="{{bnk.document.url}}">Download Document</a>
+                          {% if bnk.document %}
+                              <a class="dropdown-item text-black" download href="{{ bnk.document.url }}">Download Document</a>
                           {% endif %}
-                        </div>
+                      </div>
+                      
                         <a class="btn btn-outline-warning small_btn mt-2 mx-2 d-none" onclick="export_as_pdf()" title="PDF" id="pdf_btn"> 
                           <i class="fa fa-file-pdf"></i>
                         </a>
