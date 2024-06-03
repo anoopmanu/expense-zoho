@@ -19,6 +19,8 @@
                                                 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
                                                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
                                                 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+                                                <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
                                                 
                                                 <style>
                                                   .bs{
@@ -247,7 +249,10 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="{% url 'items_list' %}" class="text-warning-emphasis">Items</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Purchase</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'expense' %}" class="text-warning-emphasis">Expense</a></li>
+
+
               <li class="breadcrumb-item" aria-current="page">Overview</li>
             </ol>
         </nav>
@@ -272,40 +277,43 @@
                        
                        <div class="dropdown-menu m-1" style="background-color: black; color: white;">
                         <a class="dropdown-item text-white" href="">All</a>
-                        <a class="dropdown-item text-white" href="">Item Name</a>
-                        <a class="dropdown-item text-white" href="">HSN</a>
+                        <a class="dropdown-item text-white" href="">Amount</a>
+                        <a class="dropdown-item text-white" href="">Expense Account</a>
                        </div>
                    </div>
                </div>
                
                <div class="col-md-3" style="padding-left: 40px;">
-                   <div class="col-md-2 mt-2 mx-1">
-                       <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="height: 38px;">
-                           <i class="fa fa-filter"></i>
-                       </a>
-               
-                       <div class="dropdown-menu m-1" style="background-color: #000;">
-                        <a class="dropdown-item text-white" href="">All</a>
-                        <a class="dropdown-item text-white" href="">Active</a>
-                        <a class="dropdown-item text-white" href="">Inactive</a>
-                       </div>
-                   </div>
-               </div>
-               <script>
-                   function applyFilter(currentFilter) {
-                               var rows = $("#table2 tbody tr");
-                               rows.show();
-                               if (currentFilter === "Active" || currentFilter === "inactive") {
-                                 rows.filter(":not(:contains('" + currentFilter + "'))").hide();
-                               }
-                             }
-               </script>
-               
-               <div class="col-md-3" style="padding-left: 120PX;">
-                   <a class="btn btn btn-outline-warning text-right mt-2" style="height: 38px; padding-top: 12px; padding-left: 17px;" href="{% url 'new_items'%}">
-                       <i class="fa fa-plus"></i>
-                   </a>
-               </div>
+                <div class="col-md-2 mt-2 mx-1">
+                    <a class="btn text-center btn-outline-warning" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="height: 38px;">
+                        <i class="fa fa-filter"></i>
+                    </a>
+                    <div class="dropdown-menu m-1" style="background-color: #000;">
+                        <a class="dropdown-item text-white" href="javascript:void(0);" onclick="applyFilter('')">All</a>
+                        <a class="dropdown-item text-white" href="javascript:void(0);" onclick="applyFilter('save')">save</a>
+                        <a class="dropdown-item text-white" href="javascript:void(0);" onclick="applyFilter('draft')">draft</a>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+               function applyFilter(currentFilter) {
+    var rows = $("#table2 tbody tr");
+    rows.show();
+    if (currentFilter) {
+        rows.filter(":not(:contains('" + currentFilter + "'))").hide();
+    }
+}
+
+            </script>
+      
+            
+      <div class="col-md-3 text-center" style="padding-left: 120px;">
+        <a class="btn btn-outline-warning mt-2" style="height: 38px; line-height: 1.5;" href="{% url 'create_expense' %}">
+            <i class="fa fa-plus"></i>
+        </a>
+    </div>
+    
                
                <div class="col-md-6"></div>
                
@@ -324,31 +332,33 @@
           
              
              <br>
-             <!-- Table 2: Billable Projects -->
-             <table class="table  text-white" id="table2">
-               <tbody>
-                 {% for i in exp %}
-                   <tr class="clickable" id="{{i.id}}">
-                     <td class="justify-content-between align-items-center ">
-                       <!-- <b ><a class="text-white"  href="">{{i.item_name}} </a></b>
-                       <br>
-                       <a class="text-white"  href="">{{i.hsn_code}}</a><br> -->
-                       <label class="text-left d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.date}} </a></label>
-                       <br>
-                       <label class="text-left d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.account}}</a></label>
-                  
-                     </td>
-                     
-                     <td>
-                       <label class="text-end d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.amount}}</a></label>
-                       <br>
-                       <label class="text-end d-block"><a class="text-white"  href="{% url 'expense_overview' i.id %}">{{i.status}}</a></label>
-                     </td>
-                   </tr></a>
-                 {% endfor %}
-               </tbody>
-             </table>
-             <!-- <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;color: #d19d0d;">
+          <!-- Table 2: Billable Projects -->
+<table class="table text-white" id="table2">
+  <tbody>
+      {% for i in exp %}
+          <tr class="clickable" id="{{i.id}}">
+              <td class="justify-content-between align-items-center">
+                  <label class="text-left d-block">
+                      <a class="text-white" href="{% url 'expense_overview' i.id %}">{{i.date}}</a>
+                  </label>
+                  <br>
+                  <label class="text-left d-block">
+                      <a class="text-white" href="{% url 'expense_overview' i.id %}">{{i.account}}</a>
+                  </label>
+              </td>
+              <td>
+                  <label class="text-end d-block">
+                      <a class="text-white" href="{% url 'expense_overview' i.id %}">{{i.amount}}</a>
+                  </label>
+                  <br>
+                  <label class="text-end d-block">
+                      <a class="text-white" href="{% url 'expense_overview' i.id %}">{{i.status}}</a>
+                  </label>
+              </td>
+          </tr>
+      {% endfor %}
+  </tbody>
+</table>   <!-- <table id="table2" class="table customer-table" style="border: 1px solid black; width: 100%; margin-left: 0;color: #d19d0d;">
                <tbody>
                  {% for i in acc %} -->
                         <!-- <td>
@@ -413,7 +423,7 @@
         <div class="col-md-6">
           <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;"><i class="fas fa-eye"></i>
             Overview</a>
-            <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-eye"></i>
+            <a class="btn" style="background-color: chocolate; margin-right: 2vh;color: aliceblue;" onclick="totemplate()"><i class="fas fa-book"></i>
               Templates</a>
               <script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -755,7 +765,7 @@
                         <i class="fas fa-share"></i>
                     </a>
                     <div class="dropdown-menu m-1" style="background-color: rgb(43, 42, 42); color: white;margin-left: 4px;">
-                        <a class="dropdown-item" data-toggle="modal" data-target="#shareBillEmail" href="#" style="color: #eeeaea;">GMAIL</a>
+                        <a class="dropdown-item" data-toggle="modal" data-target="#shareToEmail" href="#" style="color: #eeeaea;">GMAIL</a>
                         <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()" style="color: #fefefe;">WhatsApp</a>
                     </div>
                 </div>
@@ -764,9 +774,8 @@
                     <button class="btn btn-outline-warning" title="Pdf" style="width: 50px;margin-left: 4px;"><i class="fas fa-file-pdf" ></i></button>
                 </a>
         
-                <a class="btn btn-outline-warning py-2" style="cursor: pointer;margin-left: 4px;" onclick="exportToExcel()" style="width: 50px;margin-left: 4px;">XLS</a>
-        
-                <a class="text-dark" onclick="printSelectedArea2()">
+                  
+                <a class="text-dark" onclick="printSelectedArea1()">
                     <button class="btn btn-outline-warning" title="Print" style="width: 50px;margin-left: 4px;"><i class="fas fa-print" ></i></button>
                 </a>
         
@@ -793,12 +802,14 @@
         <div class="row" id="div-to-pdf"
           style="background-color: #c4c1c1fd;  height: auto; margin-left:20px; margin-right: 1rem; width: 75%; ">
     
-          
+   <div class="tabcontent" id="Templates">
+    <div  id="whatToPrint" class="print-only">      
     <!--template 1-->
     <div id="whatToPrint1" class="printTemplates template1">
       <div class="page" size="A4" id="Templates">
         <div class="p-4">
           <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+            
             <section>
               <div class="row py-3 bg-warning align-items-center">
                 <div class="col-3">
@@ -1264,79 +1275,11 @@
                   </table>
                 </div>
             </div> 
-            <section class="balance-info mb-4">
-                <div class="row">
-                    <div class="col-md-7"></div>
-                    <div class="col-md-4">
-                        <br>
-                        <table class="table table-borderless">
-                            <tbody>
-                                <tr >
-                                    <td style="color: #000;">Sub Total</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.subtotal}}</td>
-                                </tr>
-                                
-                                {% if invoice.igst != 0 %}
-                                <tr >
-                                    <td style="color: #000;">IGST</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.igst}}</td>
-                                </tr>
-                                {% endif %}
-                                {% if invoice.cgst != 0 %}
-                                <tr>
-                                    <td style="color: #000;">CGST</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.cgst}}</td>
-                                    
-                                </tr>
-                                {% endif %}
-                                {% if invoice.sgst != 0 %}
-                                <tr>
-                                    <td style="color: #000;">SGST</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.sgst}}</td>
-                                </tr>
-                                {% endif %}
-                                <tr >
-                                    <td style="color: #000;">Tax Amount</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.tax_amount}}</td>
-                                </tr>
-                                {% if invoice.shipping_charge != 0 %}
-                                <tr >
-                                    <td style="color: #000;">Shipping Charge</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.shipping_charge}}</td>
-                                </tr>
-                                {% endif %}
-                                {% if invoice.adjustment != 0 %}
-                                <tr >
-                                    <td style="color: #000;">Adjustment</td>
-                                    <td style="color: #000;">:</td>
-                                    <td class="text-right" style="color: #000;">{{invoice.adjustment}}</td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-
-                        </table>
-                        <hr style="background-color: #000000;">
-                        <table class="table table-borderless">
-                            <tbody>
-                                <tr >
-                                    <th style="color: #000;">Grand Total</th>
-                                    <th style="color: #000;">:</th>
-                                    <th class="text-right" style="color: #000;">{{invoice.grandtotal}}</th>
-                                </tr>
-                                <tr >
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section> 
+            
         </div>
     </div>
+</div>
+</div>
 </div>
 
 
@@ -1614,41 +1557,84 @@
   
   <!-- MOdal EMAIL -->
   
-  <div class="modal fade" id="shareBillEmail">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
-        <div class="modal-header" style="background: rgb(32, 35, 37);">
-          <h5 class="m-3 text-uppercase" id="shareBillEmailLabel" style="color: #fefefe;">Share Item Transactions Via Email</h5>
-          <button type="button" class="close" style="width: 30px;" data-dismiss="modal" aria-label="Close"><span
-              aria-hidden="true">&times;</span></button>
+  <div class="modal fade" id="shareToEmail">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #3b3b3b;">
+            <div class="modal-header">
+                <h3 class="modal-title text-light" id="exampleModalLabel">Share Expense</h3>
+                <button type="button" class="btn close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: x-large;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3" style="background-color: #000;">
+                <form action="{% url 'expense_shareemail' over.id %}" method="post" id="share_to_email_form" class="needs-validation" novalidate enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="emailIds" class="text-light">Email IDs</label>
+                        <textarea class="form-control" name="email_ids" id="emailIds" rows="3" placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                        <div class="invalid-feedback">
+                            Please enter at least one email address.
+                        </div>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="email_message" class="text-light">Message (optional)</label>
+                        <textarea name="email_message" id="email_message" class="form-control" rows="4" placeholder="This message will be sent along with the Bill details."></textarea>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <div class="d-flex">
+                                <button class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" type="submit" id="share_with_email">Save</button>
+                                <input class="btn save_btn btn-outline-warning mt-2 my-4 mx-2 w-50" data-dismiss="modal" type="reset" value="Close">
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer"></div>
         </div>
-        <div class="modal-body" style="background: rgb(32, 35, 37);">
-          <div class="card p-3 m-3">
-            <form action="" method="post" class="needs-validation"
-              id="share_to_email_form" autocomplete="off">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="emailIds" style="color: #000;">Email IDs</label>
-                <textarea class="form-control text-dark"  style="color: #000;" name="email_ids" id="emailIds" rows="5"
-                  placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
-              </div>
-              <div class="form-group mt-2">
-                <label for="item_unitname"  style="color: #000;">Message(optional)</label>
-                <textarea name="email_message"  style="color: #000;" id="email_message" class="text-dark form-control" cols=""
-                  rows="4" placeholder="This message will be sent along with Bill details."></textarea>
-              </div>
-       
-          </div>
-          <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
-            <!-- <button type="submit">submit</button> -->
-            <input type="submit" id="share_with_email"
-              class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
-          </div>
-        </div>
-      </form>
-      </div>
     </div>
-  </div>
+</div>
+
+  
+<script>
+      $(document).ready(function(){
+        $('#share_with_email').on('click',function(){
+            var emailsInput = document.getElementById('emailIds');
+            var emailsString = emailsInput.value.trim();
+
+            var emails = emailsString.split(',').map(function(email) {
+                return email.trim();
+            });
+
+            var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+            var invalidEmails = []
+            if(emailsString == ""){
+                alert('Enter valid email addresses..')
+            }
+            else{
+                for (var i = 0; i < emails.length; i++) {
+                    var currentEmail = emails[i];
+
+                    if (currentEmail!="" && !emailRegex.test(currentEmail)) {
+                        console.log(currentEmail + ' is invalid!');
+                        invalidEmails.push(currentEmail)
+                    }
+                }
+                
+                if(invalidEmails.length > 0){
+                    alert('Invalid emails..Please check!\n'+invalidEmails)
+                    // alert(invalidEmails)
+                }else{
+                    $('#share_to_email_form').submit();
+                }
+            }
+        })
+    });
+</script>
+
   
   <!-- history modal -->
   
@@ -1930,11 +1916,109 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
   <script>
-    function export_as_pdf() {
-      const content = document.getElementById('Templates');
-      html2pdf().from(content).save('{{over.expense_type }}.pdf');
+  
+function export_as_pdf() {
+    const content = document.getElementById('Templates');
+    html2pdf().from(content).save('{{over.expense_type }}.pdf');
+  }
+
+
+
+
+    function printSelectedArea1() {
+    var printContent = document.getElementById('Templates').innerHTML;
+    var originalBody = document.body.innerHTML;
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalBody;
+}
+
+
+    function printSelectedArea1() {
+    var printContent = document.getElementById('Templates').innerHTML;
+    var originalBody = document.body.innerHTML;
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalBody;
+}
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script>
+    function exportToExcel() {
+      // Extract data from the template
+      const expenseDetails = {
+        status: "{{over.status}}",
+        expenseNumber: "{{over.expense_number}}",
+        vendor: {
+          name: "{{over.vendor_name}}",
+          email: "{{over.vendor_email}}",
+          address: "{{over.vendor_billing_address}}",
+          sourceOfSupply: "{{over.vendor_source_of_supply}}"
+        },
+        customer: {
+          name: "{{over.customer_name}}",
+          email: "{{over.customer_email}}",
+          address: "{{over.customer_billing_address}}",
+          placeOfSupply: "{{over.customer_price_of_supply}}"
+        },
+        company: {
+          name: "{{over.company.company_name}}",
+          email: "{{over.login_details.email}}",
+          address: "{{over.company.address}}",
+          contact: "{{over.company.contact}}"
+        },
+        expenseDate: "{{over.date}}",
+        taxRate: "{{over.tax_rate}}",
+        paymentMethod: "{{over.payment_type}}",
+        expenseDetails: {
+          account: "{{over.account}}",
+          type: "{{over.expense_type}}",
+          sac: "{{over.sac_code}}",
+          amount: "{{over.amount}}"
+        }
+      };
+  
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
+  
+      // Create a worksheet with the expense details
+      const wsData = [
+        ["Status", expenseDetails.status],
+        ["Expense Number", expenseDetails.expenseNumber],
+        [],
+        ["Vendor Name", expenseDetails.vendor.name],
+        ["Vendor Email", expenseDetails.vendor.email],
+        ["Vendor Address", expenseDetails.vendor.address],
+        ["Source of Supply", expenseDetails.vendor.sourceOfSupply],
+        [],
+        ["Customer Name", expenseDetails.customer.name],
+        ["Customer Email", expenseDetails.customer.email],
+        ["Customer Address", expenseDetails.customer.address],
+        ["Place of Supply", expenseDetails.customer.placeOfSupply],
+        [],
+        ["Company Name", expenseDetails.company.name],
+        ["Company Email", expenseDetails.company.email],
+        ["Company Address", expenseDetails.company.address],
+        ["Contact Number", expenseDetails.company.contact],
+        [],
+        ["Expense Date", expenseDetails.expenseDate],
+        ["Tax Rate", expenseDetails.taxRate],
+        ["Payment Method", expenseDetails.paymentMethod],
+        [],
+        ["Expense Account", "Expense Type", "SAC", "Amount"],
+        [expenseDetails.expenseDetails.account, expenseDetails.expenseDetails.type, expenseDetails.expenseDetails.sac, expenseDetails.expenseDetails.amount]
+      ];
+  
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+  
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Expense Details");
+  
+      // Export the workbook to an Excel file
+      XLSX.writeFile(wb, "ExpenseDetails.xlsx");
     }
   </script>
+  
   
  
 {% endblock %}

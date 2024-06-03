@@ -77,8 +77,10 @@ urlpatterns = [
     path('vendor_check_gst',views.vendor_check_gst,name='vendor_check_gst'),
     path('newVendorAjax',views.newVendorAjax,name='newVendorAjax'),
     path('import_expense',views.import_expense,name='import_expense'),
+    path('downloadexpenseSampleImportFile',views.downloadexpenseSampleImportFile,name='downloadexpenseSampleImportFile'),
     path('get_vendor_data/', views.get_vendor_data, name='get_vendor_data'),
-
+    path('check_expense_number/', views.check_expense_number, name='check_expense_number'),
+    path('expense_shareemail/<int:pk>',views.expense_shareemail,name='expense_shareemail'),
 
 
 

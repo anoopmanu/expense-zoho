@@ -15,6 +15,7 @@
 <script src="path/to/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
 
 
 <style>
@@ -40,6 +41,12 @@
               <li class="breadcrumb-item" aria-current="page">Expense</li>
             </ol>
         </nav>
+        <br>
+        {% if messages %}
+            {% for message in messages %}
+                <label id="messageLabel" for="" class="text-center bg-warning mt-3 mb-3" style="width: 100%;color:white;text-shadow: 2px 2px 4px #000000;padding: 10px; border-radius: 10px;">{{message}}</label>
+            {% endfor %}
+        {% endif %}
         <div class="row mt-5">
             <div class="col-md-12">
                 <div class="card mb-3 bg-black shadow p-3 mb-5 rounded" style="max-width: 1400px;">
@@ -80,7 +87,7 @@
                             </div>
                         </div>
               
-                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="sampleexcel()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning"  href="">
+                        <a style="border: 1px solid; border-radius: 5px; height: 2.4rem; display: flex; align-items: center;margin-left: 10px;" onclick="reduce_dash()" data-bs-toggle="modal" data-bs-target="#import_modal" class="btn btn-outline-warning" href="">
                           <i class="fa fa-file-excel-o p-1" style="font-size: large;"></i>
                           <span style="font-size: 2vh; margin-left: 0.5rem;" class="text-center">Import</span>
                       </a>
@@ -98,15 +105,7 @@
                           XLSX.writeFile(wb, 'expense.xlsx');
                       }
                   </script>
-                   <script>
-                    function sampleexcel(){
-                      const table1 = document.querySelector('#expensemodeltable');
-                      const ws1 = XLSX.utils.table_to_sheet(table1);
-                      const wb1 = XLSX.utils.book_new();
-                      XLSX.utils.book_append_sheet(wb1, ws1, 'Sheet1');
-                      XLSX.writeFile(wb1, 'expense list.xlsx');
-                    }
-                  </script>
+                  
                 
                 
         
@@ -176,41 +175,7 @@
             </div>
         </section>
         </div>
-        <div class="row" hidden>
-          <table id="expensemodeltable">
-            <thead>
-                <th>Expense Date</th>
-              <th>Expense Account</th>
-              <th>Expense Type</th>
-              <th>HSN</th>
-              <th>SAC</th>
-             <th>Expense Number</th>
-             <th>Referense Number</th>
-             <th>Amount</th>
-             <th>Tax rate</th>
-             <th>Payment Method</th>
-             <th>Vendor</th>
-              <th>Vendor Email</th>
-              <th>GST Type</th>
-              <th>GST IN</th>
-              <th>Billing Address</th>
-              <th>Source of supply([KL]-Kerala)</th>
-              <th>Customer</th>
-              <th>Customer Email</th>
-              <th>GST Type</th>
-              <th>GST IN</th>
-              <th>Billing Address</th>
-              <th>Place of supply</th>
-              <th>Note</th>
-             
-            </thead>
-            <tbody>
-              
-             
-            </tbody>
-          </table>
-        </div>
-
+       
 
       </div>
 </div>
@@ -314,33 +279,46 @@
         <!-- ................................... import modal ................. -->
         
         
+       
+        
+        <!-- ................................... import modal ................. -->
+        
+        <!-- Example using CDN -->
+
+
         <div class="modal fade" id="import_modal">
-          <div class="modal-dialog modal-lg">
-              <div class="modal-content" style="background-color: #3b3b3b;">
-                  <div class="modal-header">
-                      <h3 class="modal-title text-light" id="exampleModalLabel">Import Recurring Invoice</h3>
-                      <button type="button" class="btn close text-white" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" style="font-size: x-large;">&times;</span>
-                      </button>
-                    </div>
-                  <div class="modal-body mx-3 rounded-1" style="background-color: #000;">
-                      <div class="file_instructions">
-                         
-                      </div>
-                     
-                      <form id="importExpenseForm" action="{% url 'import_expense' %}" method="POST" class="form" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="excel_file" class="form-label text-white">File</label>
-                            <input id="excel_file" class="form-control" type="file" name="excel_file" required>
-                        </div>
-                        <div class="d-flex justify-content-center mt-4">
-                            <input id="submit_import_excel" value="IMPORT" class="btn btn-outline-warning" type="submit">
-                        </div>
-                        
-                    </form>
+          <div class="modal-dialog modal-xl">
+              <div class="modal-content" style="background: rgb(32, 35, 37); border-radius: 20px;">
+                  <div class="modal-header" style="background: rgb(32, 35, 37);">
+                      <h1 class="text-light">Import Item</h1>
                   </div>
-                  <div class="modal-footer"></div>
+                  <div class="modal-body" style="background: rgb(32, 35, 37);">
+                      <div class="card p-3 m-3" style="background-color: black;">
+                          <div class="row" style="background-color: black;">
+                              <div class="col-md-12 col-lg-12 col-sm-12" style="background-color: black;">
+                                  <h5 class="text-danger">IMPORTANT:</h5>
+                                  <p class="text-light">File should have a sheet named 'Sheet1' and column name & order should be in the given format (Uppercase)</p>
+                                  <br>
+                                  <p class="text-light">Status should be given in one of the following formats<br>
+                                      Active<br>
+                                      Inactive
+                                  </p>
+                                  <br>
+                                  <p class="text-light">If taxable, then fill Intra-State TAX and Inter-State TAX<br>
+                                      If not, fill CGST and SGST Tax with 0
+                                  </p>
+                              </div>
+                          </div>
+                      </div>
+                      <a href="{% url 'downloadexpenseSampleImportFile' %}" class="text-primary" style="font-size: medium;">Download Sample File here</a>
+                      <br>
+                      <form action="{% url 'import_expense' %}" method="post" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <input type="file" name="excel_file" class="form-control text-dark" style="width: 50%;" required>
+                          <br>
+                          <button class="btn btn-outline-warning mt-3">IMPORT</button>
+                      </form>
+                  </div>
               </div>
           </div>
       </div>
@@ -378,6 +356,8 @@
         
         <!-- Include jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="{% static 'js/xlsx.full.min.js' %}"></script>
+
         
         <script>
           $(document).ready(function() {

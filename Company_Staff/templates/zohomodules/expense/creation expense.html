@@ -397,6 +397,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
 }
 </style>
+<style>
+    .labels {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    .form-control {
+        background-color: black;
+        color: white;
+    }
+    .form-control::placeholder {
+        color: gray;
+    }
+    .dynamic-row {
+        display: none;
+    }
+</style>
+
 
 
 <div class="body-wrapper">
@@ -404,8 +422,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Dashboard</a></li>
-        <li class="breadcrumb-item"><a class="text-warning-emphasis">Cash & Bank</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'bank_list' %}" class="text-warning-emphasis">Banking</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'company_dashboard' %}" class="text-warning-emphasis">Purchase</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'expense' %}" class="text-warning-emphasis">Expense</a></li>
         <li class="breadcrumb-item" aria-current="page">Create</li>
       </ol>
     </nav>
@@ -416,221 +434,293 @@ input[type="date"]::-webkit-calendar-picker-indicator {
               <hr class="text-warning">
               <form action="{% url 'create_expense1' %}" method="post" enctype="multipart/form-data"id="myForm">
                 {% csrf_token %}
-                <div class="row">
-                  <label for="date" class="col-md-3 p-3 labels">Expense Date</label>
-                  <div class="col-md-6 p-3">
-                    <input type="date" class="form-control text-white bg-black" id="date" name="date" required>
-                  </div>
+                <div class="container">
+                    <div class="row">
+                        <label for="date" class="col-md-3 p-3 labels">Expense Date</label>
+                        <div class="col-md-6 p-3">
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <label for="account" class="col-md-3 p-3 labels">Expense Account</label>
+                        <div class="col-md-6 p-3">
+                            <select class="form-control form-select" id="account" name="account" required>
+                                <option style="color: white;">Select accounts</option>
+                                {% for v in acc %}
+                                <option value="{{ v.account_name }}">{{ v.account_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row align-items-center">
+                        <label for="expense_type" class="col-md-3 p-3 labels">Expense Type</label>
+                        <div class="col-md-6 p-3">
+                            <select class="form-control" id="expense_type" name="expense_type" onchange="toggleCodeFields()">
+                                <option value="">Select Expense Type</option>
+                                <option value="goods">Goods</option>
+                                <option value="service">Service</option>
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row align-items-center" id="hsnField" style="display: none;">
+                        <label for="hsn_code" class="col-md-3 p-3 labels">HSN Code</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="hsn_code" name="hsn_code">
+                            <div id="hsn_error_message" style="color: rgb(174, 31, 31);"></div>
+                        </div>
+                    </div>
+                
+                    <div class="row align-items-center" id="sacField" style="display: none;">
+                        <label for="sac_code" class="col-md-3 p-3 labels">SAC Code</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="sac_code" name="sac_code">
+                            <div id="sac_error_message" style="color: rgb(174, 31, 31);"></div>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <label for="expense_number" class="col-md-3 p-3 labels">Expense Number</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="expense_number" name="expense_number" value="" placeholder="{{ last_expense_number }}">
+                            <div id="expense_number_message"></div>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <label for="reference_number" class="col-md-3 p-3 labels">Reference Number</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="reference_number" value="{{ next_ref_number }}" name="reference_number">
+                        </div>
+                    </div>
+                   
+                
+                    <div class="row">
+                        <label for="amount" class="col-md-3 p-3 labels">Amount</label>
+                        <div class="col-md-6 p-3">
+                            <div class="input-group">
+                                <select class="form-control form-select" id="currency" name="currency">
+                                    <option value="inr">INR</option>
+                                </select>
+                                <input type="number" class="form-control small-input" id="amount" name="amount">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                
+                    <div class="row">
+                        <label for="tax_rate" class="col-md-3 p-3 labels">TAX Rate</label>
+                        <div class="col-md-6 p-3">
+                            <select class="form-control form-select" id="tax_rate" name="tax_rate">
+                                <option value="">-- Select Tax --</option>
+                                <option value="0">GST0[0%]</option>
+                                <option value="3">GST3[3%]</option>
+                                <option value="5">GST5[5%]</option>
+                                <option value="12">GST12[12%]</option>
+                                <option value="18">GST18[18%]</option>
+                                <option value="28">GST28[28%]</option>
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <label for="payment_type" class="col-md-3 p-3 labels">Payment method</label>
+                        <div class="col-md-6 p-3">
+                            <select class="form-control form-select" name="payment_type" id="payment_type" onchange="showFields()">
+                                <option value="cash">Cash</option>
+                                <option value="Cheque">Cheque</option>
+                                <option value="UPI">UPI</option>
+                                {% for i in b %}
+                                <option value="{{ i.bnk_name }}">{{ i.bnk_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row dynamic-row" id="cheque_no_row">
+                        <label for="cheque_no" class="col-md-3 p-3 labels">Cheque Number</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="cheque_no" name="check_no">
+                        </div>
+                    </div>
+                
+                    <div class="row dynamic-row" id="upi_id_row">
+                        <label for="upi_id" class="col-md-3 p-3 labels">UPI ID</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="upi_id" name="upi_id">
+                        </div>
+                    </div>
+                
+                    <div class="row dynamic-row" id="acc_no_row">
+                        <label for="acc_no" class="col-md-3 p-3 labels">Ac/Number</label>
+                        <div class="col-md-6 p-3">
+                            <input type="text" class="form-control" id="acc_no" name="acc_no" value="{{ bank_account_number }}">
+                        </div>
+                    </div>
                 </div>
+                <br>
+                <br>
                 <script>
-                  // Get current date
-                  var currentDate = new Date();
-                  
-                  // Format the date as YYYY-MM-DD
-                  var year = currentDate.getFullYear();
-                  var month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                  var day = String(currentDate.getDate()).padStart(2, '0');
-                  var formattedDate = `${year}-${month}-${day}`;
-                  
-                  // Set the value of the date input field
-                  document.getElementById('date').value = formattedDate;
-              </script>
+                    // Set current date in the date input field
+                    document.addEventListener('DOMContentLoaded', function() {
+                        var currentDate = new Date();
+                        var year = currentDate.getFullYear();
+                        var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+                        var day = String(currentDate.getDate()).padStart(2, '0');
+                        var formattedDate = `${year}-${month}-${day}`;
+                        document.getElementById('date').value = formattedDate;
+                    });
                 
-                <div class="row">
-                    <!-- Expense Account -->
-                    <label for="name" class="col-md-3 p-3 labels">Expense Account</label>
-                    <div class="col-md-6 p-3">
-                        <select name="account" id="account" class="form-control" required>
-                            <option style="color: white;">Select accounts</option>
-                            {% for v in acc %}
-                            <option value="{{ v.account_name }}">{{ v.account_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <!-- Expense Type -->
-                    <label for="ac_no" class="col-md-3 p-3 labels">Expense Type</label>
-                    <div class="col-md-6 p-3">
-                        <select class="form-control" id="expense_type" style="color: white;" name="expense_type" onchange="toggleCodeFields()">
-                            <option style="background-color: black;" value="">Select Expense Type</option>
-                            <option style="background-color: black;" value="goods">Goods</option>
-                            <option style="background-color: black;" value="service">Service</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="row" id="hsnField" style="display: none;">
-                    <!-- HSN Code -->
-                    <label for="name" class="col-md-3 p-3 labels">HSN Code</label>
-                    <div class="col-md-6 p-3">
-                        <input type="text" class="form-control text-white bg-black" id="hsn_code" name="hsn_code">
-                    </div>
-                </div>
-                
-                <div class="row" id="sacField" style="display: none;">
-                    <!-- SAC Code -->
-                    <label for="name" class="col-md-3 p-3 labels">SAC Code</label>
-                    <div class="col-md-6 p-3">
-                        <input type="text" class="form-control text-white bg-black" id="sac_code" name="sac_code">
-                    </div>
-                </div>
-                <script>
+                    // Function to toggle display of code fields based on selected expense type
                     function toggleCodeFields() {
                         var expenseType = document.getElementById("expense_type").value;
                         var hsnField = document.getElementById("hsnField");
                         var sacField = document.getElementById("sacField");
                 
                         if (expenseType === "goods") {
-                            hsnField.style.display = "block";
+                            hsnField.style.display = "flex";
                             sacField.style.display = "none";
                         } else if (expenseType === "service") {
                             hsnField.style.display = "none";
-                            sacField.style.display = "block";
+                            sacField.style.display = "flex";
                         } else {
                             hsnField.style.display = "none";
                             sacField.style.display = "none";
                         }
                     }
+                
+                    // Event listener for input validation of SAC code
+                    document.getElementById("sac_code").addEventListener("input", function() {
+                        var inputValue = this.value;
+                        var isSixDigits = /^\d{6}$/.test(inputValue);
+                        var sacErrorMessage = document.getElementById("sac_error_message");
+                
+                        if (!isSixDigits) {
+                            sacErrorMessage.textContent = "SAC code must be a 6-digit number";
+                        } else {
+                            sacErrorMessage.textContent = "";
+                        }
+                    });
+                
+                    // Event listener for input validation of HSN code
+                    document.getElementById("hsn_code").addEventListener("input", function() {
+                        var inputValue = this.value;
+                        var isSixDigits = /^\d{6}$/.test(inputValue);
+                        var hsnErrorMessage = document.getElementById("hsn_error_message");
+                
+                        if (!isSixDigits) {
+                            hsnErrorMessage.textContent = "HSN code must be a 6-digit number";
+                        } else {
+                            hsnErrorMessage.textContent = "";
+                        }
+                    });
+                
+                    // Event listener for checking expense number
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.getElementById('expense_number').addEventListener('blur', function() {
+                            var expenseNumber = this.value;
+                            fetch("{% url 'check_expense_number' %}", {
+                                method: "GET",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    'expense_number': expenseNumber
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.exists) {
+                                    document.getElementById('expense_number_message').textContent = 'Expense number already exists.';
+                                    document.getElementById('expense_number_message').style.color = 'red';
+                                } else {
+                                    document.getElementById('expense_number_message').textContent = '';
+                                }
+                            });
+                        });
+                    });
+                
+                    // Function to show relevant fields based on payment type
+                    function showFields() {
+                        var paymentType = document.getElementById("payment_type").value;
+                        var chequeNoRow = document.getElementById("cheque_no_row");
+                        var upiIdRow = document.getElementById("upi_id_row");
+                        var accNoRow = document.getElementById("acc_no_row");
+                
+                        chequeNoRow.style.display = "none";
+                        upiIdRow.style.display = "none";
+                        accNoRow.style.display = "none";
+                
+                        if (paymentType === "Cheque") {
+                            chequeNoRow.style.display = "flex";
+                        } else if (paymentType === "UPI") {
+                            upiIdRow.style.display = "flex";
+                        } else if (paymentType !== "cash") {
+                            accNoRow.style.display = "flex";
+                        }
+                    }
                 </script>
-                <div class="row">
-                    <!-- Expense Number -->
-                    <label for="branch" class="col-md-3 p-3 labels">Expense Number</label>
-                    <div class="col-md-6 p-3">
-                        <input type="text" class="form-control text-white bg-black" id="expense_number" name="expense_number">
-                    </div>
-                </div>
+              
+               
                 
-                <div class="row">
-                    <!-- Reference Number -->
-                    <label for="branch" class="col-md-3 p-3 labels">Reference Number</label>
-                    <div class="col-md-6 p-3">
-                        <input type="text" class="form-control text-white bg-black" id="reference_number" value="{{count}}" name="reference_number">
-                    </div>
-                </div>
-                
-                <div class="row">
-                  <label for="opn_bal" class="col-md-3 p-3 labels">Amount</label>
-                  <div class="col-md-6 p-3">
-                    <div class="input-group">
-                      <div class="input-group-append">
-                        <select class="form-control form-select text-white bg-black" id="amount" name="amount">
-                          <option value="inr">INR</option>
-
-                        </select>
-                      </div>
-                      <input type="number" class="form-control text-white bg-black" id="amount" name="amount">
-                    </div>
-                  </div>
-                </div>
-          
-                <div class="row">
-                  <label for="ifsc" class="col-md-3 p-3 labels">Tax Rate</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="tax_rate" name="tax_rate">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-3 p-3 labels">
-                    <label for="paid"  >Payment method</label>
-        
-                  </div>
-                  <div class="col-md-6 mt-3" >
-                    <select name="payment_type" id="payment_type" onclick="show_fields()"  class="form-control text-dark">
-                      <option value="no_option">select</option>
-                      <option value="Cash">Cash</option>
-                      <option value="Cheque">Cheque</option>
-                      <option value="UPI">UPI</option>
-                      {% for i in b%}
-                      <option value="{{ i.bnk_name }}">{{ i.bnk_name }}</option>
-                      {% endfor %}
-                  </select>
-                    
-                  
-            
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-3 p-3 labels">
-                    <label  id="cheque_no_label" style="display: none;" >Cheque Number</label>
-                  </div>
-                  <div class="col-md-3 p-3 labels">
-                    <input type="number" class="form-control text-dark  " style="display: none;" name="cheque_no" id="cheque_no" style="color: #000;" >
-                  </div>
-                </div>
-        
-                <div class="row">
-                  <div class="col-md-3 p-3 labels">
-                    <label for="validationCustom02" id="upi_id_label" style="display: none;" name="credit_note_no">UPI ID</label>
-                  </div>
-                  <div class="col-md-3 p-3 labels">
-                    <input type="text" class="form-control text-dark" style="display: none;" name="upi_id" id="upi_id"  >
-                  </div>
-                </div>
-        
-                <div class="row">
-                  <div class="col-md-3 p-3 labels">
-                    <label for="validationCustom02" id="acc_no_label"  style="display: none;" >Ac/Number</label>
-                  </div>
-                  <div class="col-md-3 p-3 labels">
-                    <input type="text" class="form-control text-dark" id="acc_no" name="acc_no" style="display: none;"  >
-                  </div>
-                </div>
                 <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
-<hr class="text-warning">
-<div class="row">
-    <div class="col-md-3">
-        <label for="" class="labels">Vendor</label>
-        <br>
-        <span class="text-danger" id="vendErr"></span>
-    </div>
-    <div class="col-md-6">
-        <input type="hidden" name="vendorId" id="vendorId" value="">
-        <div class="d-flex">
-            <div class="w-100">
-                <div class="p-0 border-0 bg-none position-relative drop-box">
-                    <input required type="text" id="vendor" value="" name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
-                    <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="vend_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
-                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('', '')">Select Vendor</li>
-                        {% for cust in v %}
-                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('{{ cust.id }}', this.innerHTML)">{{ cust.title }} {{ cust.first_name }} {{ cust.last_name }}</li>
-                        {% endfor %}
-                    </ul>
+                <hr class="text-warning">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="" class="labels">Vendor</label>
+                        <br>
+                        <span class="text-danger" id="vendErr"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="hidden" name="vendorId" id="vendorId" value="">
+                        <div class="d-flex">
+                            <div class="w-100">
+                                <div class="p-0 border-0 bg-none position-relative drop-box">
+                                    <input required type="text" id="vendor" value="" name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
+                                    <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="vend_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
+                                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('', '')">Select Vendor</li>
+                                        {% for cust in v %}
+                                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('{{ cust.id }}', this.innerHTML)">{{ cust.title }} {{ cust.first_name }} {{ cust.last_name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <button type="button" data-toggle="modal" data-target="#newVendor" class="btn btn-outline-warning py-2 ms-1">+</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <button type="button" data-toggle="modal" data-target="#newVendor" class="btn btn-outline-warning py-2 ms-1">+</button>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-2">
-    <label for="" class="col-md-3 labels">Email</label>
-    <div class="col-md-6">
-        <input type="text" class="form-control text-white bg-black" id="vendorEmail" name="vendor_email" readonly>
-    </div>
-</div>
-
-<div class="row mt-2">
-    <label for="" class="col-md-3 labels">GST Type</label>
-    <div class="col-md-6">
-        <input type="text" class="form-control text-white bg-black" id="vendorGstType" name="vendor_gst_type" readonly>
-    </div>
-</div>
-
-<div class="row mt-2" id="customerGstInDisplay" style="display: flex;">
-    <label for="" class="col-md-3 labels">GSTIN</label>
-    <div class="col-md-6">
-        <input type="text" class="form-control text-white bg-black" id="vendorGSTIN" name="vendor_gstin" readonly>
-    </div>
-</div>
-
-<div class="row mt-2" id="billAddressSection">
-    <label for="" class="col-md-3 labels">Billing Address</label>
-    <div class="col-md-6">
-        <textarea class="form-control text-white bg-black" name="vendor_billing_address" id="vbillAddress" rows="4" readonly></textarea>
-    </div>
-</div>
+                
+                <div class="row mt-2">
+                    <label for="" class="col-md-3 labels">Email</label>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control text-white bg-black" id="vendorEmail" name="vendor_email" readonly>
+                    </div>
+                </div>
+                
+                <div class="row mt-2">
+                    <label for="" class="col-md-3 labels">GST Type</label>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control text-white bg-black" id="vendorGstType" name="vendor_gst_type" readonly>
+                    </div>
+                </div>
+                
+                <div class="row mt-2" id="customerGstInDisplay" style="display: flex;">
+                    <label for="" class="col-md-3 labels">GSTIN</label>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control text-white bg-black" id="vendorGSTIN" name="vendor_gstin" readonly>
+                    </div>
+                </div>
+                
+                <div class="row mt-2" id="billAddressSection">
+                    <label for="" class="col-md-3 labels">Billing Address</label>
+                    <div class="col-md-6">
+                        <textarea class="form-control text-white bg-black" name="vendor_billing_address" id="vbillAddress" rows="4" readonly></textarea>
+                    </div>
+                </div>
+                
 
 <div class="row mt-2">
     <label for="" class="col-md-3 labels">Source of Supply</label>
@@ -825,16 +915,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 
 
                 <br>
-                <div class="row">
-                    <!-- Save button -->
-                    <div class="col-md-6 mb-3">
-                        <input type="submit" class="btn save_btn small_btn mt-2 mx-2" style="background-color: chocolate; color: white;" value="SAVE" id="save" data-status="save">
-                    </div>
-                    <!-- Save as draft button -->
-                    <div class="col-md-6 mb-3">
-                        <input type="button" class="btn save_btn small_btn mt-2 mx-2" style="background-color: chocolate; color: white;" value="SAVE AS DRAFT" id="saveDraft">
-                    </div>
-                </div>
+                
+                <div class="mt-4">
+                    <input type="submit" class="btn save_btn" style="background-color: chocolate; color: white;" value="SAVE"  id="save">
+                    <input class="btn save_btn" style="background-color: chocolate; color: white;" type="submit" value="SAVE AS DRAFT" id="saveDraft">
+                    <input class="btn save_btn" style="background-color: chocolate; color: white;" type="reset" onclick="window.location.href=`{% url 'expense' %}`" value="CANCEL" id="cancel">
+                  </div>
             </form>
         </div>
     </div>
@@ -1003,15 +1089,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   
                 <fieldset3 id="vendorgst" style="display: none;">
                     <div class="row mt-4">
-                        <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white"  > GSTIN/UIN*</label>
-                        
-                        <div class=" col-sm-12 col-md-3 col-lg-3">
-                            <input type="text" class="form-control bg-light text-dark" name="vendorgst_number" id="vendorgstInput" > 
-                            <span id="vendorgstMessage"></span>       
+                        <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white">GSTIN/UIN*</label>
+                        <div class="col-sm-12 col-md-3 col-lg-3">
+                            <input type="text" class="form-control bg-light text-dark" name="vendorgst_number" id="vendorgstInput">
+                            <span id="vendorgstMessage"></span>
                         </div>
                     </div>
-  
                 </fieldset3>
+                
   
                 <fieldset4 id="vendorpan" style="display: none;">
                     <div class="row mt-4">
@@ -1207,20 +1292,58 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                               </div>
                           
                               <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Phone </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input id="vendorbphone_num"  type="tel" pattern="[0-9]{10}" class="form-control bg-light text-dark" name="vendorbphone" >
-                                      <label for="" id="vendorbphone_label"></label>      
-                                  </div>
-                              </div>
-                              <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Fax </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" onmouseout="vendorfax_number()"  onclick="vendobphone_number()" name="vendorbfax" id="vendorbfx">  
-                                  
-                                      <label for="" id="fax_label"></label> 
-                                  </div>
-                              </div>
+                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" for="vendorbphone_num">Phone</label>                    
+                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                    <input id="vendorbphone_num" type="tel" class="form-control bg-light text-dark" name="vendorbphone">
+                                    <span id="vendorbphone_label" class="mt-2 text-danger" style="font-size: 10px;"></span>
+                                </div>
+                            </div>
+                            <script>
+                                document.getElementById('vendorbphone_num').addEventListener('input', function() {
+                                    const phoneInput = this.value;
+                                    const errorSpan = document.getElementById('vendorbphone_label');
+                                
+                                    const phonePattern = /^[0-9]{7}$/;
+                                
+                                    if (phonePattern.test(phoneInput)) {
+                                        errorSpan.textContent = 'Valid phone number';
+                                        errorSpan.classList.remove('text-danger');
+                                        errorSpan.classList.add('text-success');
+                                    } else {
+                                        errorSpan.textContent = 'Phone number must be exactly 7 digits';
+                                        errorSpan.classList.remove('text-success');
+                                        errorSpan.classList.add('text-danger');
+                                    }
+                                });
+                                </script>
+                                
+                            
+                                <div class="form-group row mt-4">
+                                    <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" for="vendorbfx">Fax</label>                    
+                                    <div class="col-sm-12 col-md-6 col-lg-6">
+                                        <input type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" name="vendorbfax" id="vendorbfx">  
+                                        <span id="fax_message" class="mt-2" style="font-size: 10px;"></span>
+                                    </div>
+                                </div>
+                                <script>
+                                    document.getElementById('vendorbfx').addEventListener('input', function() {
+                                        const faxInput = this.value;
+                                        const messageSpan = document.getElementById('fax_message');
+                                    
+                                        const faxPattern = /^[0-9]{7}$/;
+                                    
+                                        if (faxPattern.test(faxInput)) {
+                                            messageSpan.textContent = 'Valid fax number';
+                                            messageSpan.classList.remove('text-danger');
+                                            messageSpan.classList.add('text-success');
+                                        } else {
+                                            messageSpan.textContent = 'Fax number must be exactly 7 digits';
+                                            messageSpan.classList.remove('text-success');
+                                            messageSpan.classList.add('text-danger');
+                                        }
+                                    });
+                                    </script>
+                                    
     
                           </div>
                           <div class="col-sm-12 col-md-6 col-lg-6">
@@ -1276,10 +1399,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                               <div class="form-group row mt-4">
                                   <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Phone </label>                    
                                   <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{10}" style="color: white;" name="vendorsphone" id="vendorsphone_num">  
+                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{10}" style="color: white;" name="vendorsphone" id="vendorsphone_num" >  
                                       <label for="" id="vendorsphone_label"></label>    
+                                      <span id="vendorwork-phone-message" class="mt-2 " style="font-size: 10px;"></span >
+                                        <span id="vendorsphone_label" class="mt-2 text-danger" style="font-size: 10px;"></span >
                                   </div>
                               </div>
+                              
+                                
+                             
                               <div class="form-group row mt-4">
                                   <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Fax </label>                    
                                   <div class=" col-sm-12 col-md-6 col-lg-6">
@@ -1336,27 +1464,63 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 </script>
                 
                 
-<fieldset6 id="vendorcontact_person" style="display: none;">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="table-responsive">
-                <table id="vendortbl" class="table text-white" style="background-color: rgba(250, 227, 198, 0.5);">
-                    <thead>
-                        <tr>
-                            <th>Salutation</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email Address</th>
-                            <th>Work Phone <br><span id="vendortwph_label"></span></th>
-                            <th>Mobile <br><span id="vendortlabel"></span></th>
-                            <th>Skype Name/No</th>
-                            <th>Designation</th>
-                            <th>Department</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
+                <fieldset6 id="vendorcontact_person" style="display: none;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table id="vendortbl" class="table text-white" style="background-color: rgba(250, 227, 198, 0.5);">
+                                    <thead>
+                                        <tr>
+                                            <th>Salutation</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Email Address</th>
+                                            <th>Work Phone <br><span id="vendortwph_label"></span></th>
+                                            <th>Mobile <br><span id="vendortlabel"></span></th>
+                                            <th>Skype Name/No</th>
+                                            <th>Designation</th>
+                                            <th>Department</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select name="salutation[]" class="vendorsalutation form-control bg-transparent border-1 text-white">
+                                                    <option value="" class="text-dark">Select</option>
+                                                    <option class="text-dark" value="Mr">Mr.</option>
+                                                    <option class="text-dark" value="Mrs">Mrs.</option>
+                                                    <option class="text-dark" value="Ms">Ms.</option>
+                                                    <option class="text-dark" value="Miss">Miss.</option>
+                                                    <option class="text-dark" value="Dr">Dr.</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="vendorfirst_name form-control border-1 bg-transparent text-white" name="first_name[]"></td>
+                                            <td><input type="text" class="vendorlast_name form-control border-1 bg-transparent text-white" name="last_name[]"></td>
+                                            <td><input type="email" class="vendoremail form-control border-1 bg-transparent text-white" name="email[]"></td>
+                                            <td><input type="tel" pattern="[0-9]{7}" class="vendorwork_phone form-control border-1 bg-transparent text-white" name="wphone[]"></td>
+                                            <td><input type="tel" pattern="[0-9]{10}" class="vendormobile_phone form-control border-1 bg-transparent text-white" name="mobile[]"></td>
+                                            <td><input type="text" class="vendorskype_number form-control border-1 bg-transparent text-white" name="skype[]"></td>
+                                            <td><input type="text" class="vendordesignation form-control border-1 bg-transparent text-white" name="designation[]"></td>
+                                            <td><input type="text" class="vendordepartment form-control border-1 bg-transparent text-white" name="department[]"></td>
+                                            <td><button type="button" class="btn btn-danger" onclick="deleteContact(this)">Delete</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="button add_another mt-3">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                <span class="text-small" style="margin-left: 0.30rem;">Add Contact Person</span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset6>
+                
+                <script>
+                $(document).ready(function() {
+                    // Function to add a new contact person row
+                    $('.add_another').click(function() {
+                        var newRow = `<tr>
                             <td>
                                 <select name="salutation[]" class="vendorsalutation form-control bg-transparent border-1 text-white">
                                     <option value="" class="text-dark">Select</option>
@@ -1376,17 +1540,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                             <td><input type="text" class="vendordesignation form-control border-1 bg-transparent text-white" name="designation[]"></td>
                             <td><input type="text" class="vendordepartment form-control border-1 bg-transparent text-white" name="department[]"></td>
                             <td><button type="button" class="btn btn-danger" onclick="deleteContact(this)">Delete</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="button add_another mt-3">
-                <i class="fa fa-user-plus" aria-hidden="true"></i>
-                <span class="text-small" style="margin-left: 0.30rem;">Add Contact Person</span>
-            </div>
-        </div>
-    </div>
-</fieldset6>
+                        </tr>`;
+                        $('#vendortbl tbody').append(newRow);
+                    });
+                });
+                
+                // Function to delete a contact person row
+                function deleteContact(button) {
+                    $(button).closest('tr').remove();
+                }
+                </script>
+                
       
                   <!---------------------Contact Person Section End -------------->
                   <fieldset7 class="vendorrmrk" style="display: block;">
@@ -1430,7 +1594,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   </div>
   
   
-  <!-- New Customer Payment Term -->
+  <!-- New vendor Payment Term -->
   <div class="modal fade" id="newvendorpayment">
     <div class="modal-dialog modal-md">
     <div class="modal-content" style="background: rgb(32, 35, 37);border-radius: 20px;">
@@ -2196,60 +2360,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 <!-- New Customer Modal -->
     
-  <script>
-    // Function to show/hide HSN or SAC fields based on selected expense type
-    function toggleFields() {
-      var expenseType = document.getElementById("expense_type").value;
-      var hsnField = document.getElementById("hsnField");
-      var sacField = document.getElementById("sacField");
   
-      if (expenseType === "goods") {
-        hsnField.style.display = "block";
-        sacField.style.display = "none";
-      } else if (expenseType === "service") {
-        hsnField.style.display = "none";
-        sacField.style.display = "block";
-      } else {
-        hsnField.style.display = "none";
-        sacField.style.display = "none";
-      }
-    }
-  
-    // Add event listener to call toggleFields function when the expense type changes
-    document.getElementById("expense_type").addEventListener("change", toggleFields);
-  
-    // Call toggleFields initially to set the initial display based on the default value
-    toggleFields();
-  </script>
  
 
-<script>
-    function show_fields() {
-var selected_payment_method = document.getElementById("payment_type").value;
-
-// Hide all fields first
-document.getElementById("cheque_no_label").style.display = "none";
-document.getElementById("cheque_no").style.display = "none";
-document.getElementById("upi_id_label").style.display = "none";
-document.getElementById("upi_id").style.display = "none";
-document.getElementById("acc_no_label").style.display = "none";
-document.getElementById("acc_no").style.display = "none";
-
-// Show fields based on selected payment method
-if (selected_payment_method === "Cheque") {
-document.getElementById("cheque_no_label").style.display = "block";
-document.getElementById("cheque_no").style.display = "block";
-} else if (selected_payment_method === "UPI") {
-document.getElementById("upi_id_label").style.display = "block";
-document.getElementById("upi_id").style.display = "block";
-} else if (selected_payment_method !== "no_option") {
-// If selected payment method is not "no_option" or either of the above
-document.getElementById("acc_no_label").style.display = "block";
-document.getElementById("acc_no").style.display = "block";
-}
-}
-
-  </script>
 <script>
     function filterCustomers() {
         var options = $('#cust_drop').children();
@@ -2356,7 +2469,7 @@ document.getElementById("acc_no").style.display = "block";
 
 </script>
 
-//script
+
 <!--add vendor modal-->
 <script>
      // Name display 
@@ -2407,6 +2520,9 @@ document.getElementById("acc_no").style.display = "block";
             }
         });
     });
+
+    
+  
   
     // Phone Number Validation
     $(document).ready(function () {
@@ -2516,81 +2632,92 @@ $('#vendormphone').on('input', function() {
     
     }
 
-     // Pan Number Check
-  
-     $('#vendorpanInput').on('input', function(){
-    var panNumber = $(this).val().toUpperCase(); // Convert to uppercase for consistency
-    var regex = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if(regex.test(panNumber)) {
-        // PAN number is valid, call AJAX to check if it exists
-        $.ajax({
-            url: "{% url 'vendor_check_pan' %}",
-            headers: {'X-CSRFToken': csrftoken}, 
-            type: 'POST',
-            data: {vendorpanInput: panNumber}, // Corrected to match backend variable name
-            success: function(response) {
-                if (response.status == 'exists') {
-                    $('#vendorpanMessage').text('PAN number already exists.').css({
+    // PAN Number Check
+    $('#vendorpanInput').on('input', function(){
+        var vpanNumber = $(this).val().toUpperCase(); // Convert to uppercase for consistency
+        var regex = /[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if(regex.test(vpanNumber)) {
+            $('#vendorpanMessage').text('PAN number format is valid.').css({
+                'color': 'green',
+                'font-size': '12px'
+            });
+            // PAN number is valid, call AJAX to check if it exists
+            $.ajax({
+                url: "{% url 'vendor_check_pan' %}",
+                headers: {'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()}, 
+                type: 'POST',
+                data: {vendorpan_number: vpanNumber},
+                success: function(response) {
+                    if (response.status == 'exists') {
+                        $('#vendorpanMessage').text('PAN number already exists.').css({
+                            'color': 'red',
+                            'font-size': '12px'
+                        });
+                    } else {
+                        $('#vendorpanMessage').text('');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    $('#vendorpanMessage').text('Error checking PAN number. Please try again.').css({
                         'color': 'red',
                         'font-size': '12px'
                     });
-                } else {
-                    $('#vendorpanMessage').text('');
                 }
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-                $('#vendorpanMessage').text('Error checking PAN number. Please try again.').css({
-                    'color': 'red',
-                    'font-size': '12px'
-                });
-            }
-        });
-    } else {
-        $('#vendorpanMessage').text('Please enter a valid PAN number.').css({
-            'color': 'red',
-            'font-size': '12px'
-        });
-    }
-});
-
+            });
+        } else {
+            $('#vendorpanMessage').text('Please enter a valid PAN number.').css({
+                'color': 'red',
+                'font-size': '12px'
+            });
+        }
+    });
         // Pna Number Check End 
   
    // GST Number Check 
   
-   $('#vendorgstInput').on('input', function(){
-            var gstNumber = $(this).val();
-            var regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-            if(regex.test(gstNumber)) {
-                $('#gstMessage').text('GST number is valid.').css('color', 'green');
-                // GST number is valid, call AJAX to check if it exists
-                $.ajax({
-                    url: "{% url 'vendor_check_gst' %}",
-                    headers: {'X-CSRFToken': csrftoken}, 
-                    type: 'POST',
-                    data: {gstNumber: gstNumber},
-                    success: function(response) {
-                        if (response.status == 'exists') {
-                            $('#gstMessage').text('GST number already exists.').css({
-                                'color': 'red',
-                                'font-size': '12px'
-                            });
-                            
-                        }
+   $(document).ready(function() {
+    $('#vendorgstInput').on('input', function() {
+        var vgstNumber = $(this).val();
+        var regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        
+        if (regex.test(vgstNumber)) {
+            $('#vendorgstMessage').text('GST number is valid.').css('color', 'green');
+            // GST number is valid, call AJAX to check if it exists
+            $.ajax({
+                url: "{% url 'vendor_check_gst' %}",
+                headers: {'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()},
+                type: 'POST',
+                data: {vendorgst_number: vgstNumber},  // Ensure the key matches the backend
+                success: function(response) {
+                    if (response.status === 'exists') {
+                        $('#vendorgstMessage').text('GST number already exists.').css({
+                            'color': 'red',
+                            'font-size': '12px'
+                        });
+                    } else {
+                        $('#vendorgstMessage').text('GST number is valid .').css({
+                            'color': 'green',
+                            'font-size': '12px'
+                        });
                     }
-                    });
-            } 
-            else {
-                $('#gstMessage').text('Please enter a valid GST number.').css({
-                    'color': 'red',
-                    'font-size': '12px'
-                });
-            }
+                }
             });
-    
-        // GST Number Check End 
-       
+        } else {
+            $('#vendorgstMessage').text('Please enter a valid GST number.').css({
+                'color': 'red',
+                'font-size': '12px'
+            });
+        }
+    });
+});
 
+        // GST Number Check End 
+
+        
+  
+       
+      
         $(document).on("click", "#vendorPaymentTermSave", function() {
     var trm = $('#vendortname').val();
     var dys = $("#vendortdays").val();
@@ -2636,8 +2763,6 @@ $('#vendormphone').on('input', function() {
     }
 });
 
-
-
 $(document).on("click", "#newVendorSave", function() {
     var vtype = $('input[name="vendortype"]:checked').val();
     var vtitle = $('#vendorselect1').val();
@@ -2677,6 +2802,7 @@ $(document).on("click", "#newVendorSave", function() {
     var optypeCredit = $('#vendorcredit').val();
     var opblnc = $('#vendoropa').val();
     var credit = $('#vendorcl').val();
+    var pay = $('#vendorcl').val();
     var vremark = $('#vendorrmrk').val();
 
     // Contact person details
@@ -2760,7 +2886,7 @@ $(document).on("click", "#newVendorSave", function() {
                 'billing_address': vaddress,
                 'billing_city': vcity,
                 'billing_state': vstate,
-                'billing_zip': vzip,
+                'billing_pin_code': vzip,
                 'billing_phone': vphoneBilling,
                 'billing_fax': vfax,
                 'shipping_attention': vsatten,
@@ -2768,7 +2894,7 @@ $(document).on("click", "#newVendorSave", function() {
                 'shipping_address': vsaddress,
                 'shipping_city': vscity,
                 'shipping_state': vsstate,
-                'shipping_zip': vszip,
+                'shipping_pin_code': vszip,
                 'shipping_phone': vsphone,
                 'shipping_fax': vsfax,
                 'source_of_supply': source,
@@ -2813,47 +2939,48 @@ $(document).on("click", "#newVendorSave", function() {
 });
 
 
-function reloadVendor(vtitle, vfName, vlName) {
-    const fullName = `${vtitle} ${vfName} ${vlName}`;
+
+function reloadVendor(title, fName, lName) {
+    const fullName = `${title} ${fName} ${lName}`;
     $.ajax({
         url: "{% url 'get_vendor_data' %}",
         type: "GET",
         dataType: "json",
         success: function(data) {
             console.log('Ajax Response ->', data);
-            var vendorDrpDwn = $('#vend_drop');
-            vendorDrpDwn.empty();
-            vendorDrpDwn.append('<li class="dropdown-item vendors-options text-white" onclick="getVendorDetails(\'\', \'\')">Select Vendor</li>');
-
+            var vendDrpDwn = $('#vend_drop');
+            vendDrpDwn.empty();
+            vendDrpDwn.append('<li class="dropdown-item customers-options text-white" onclick="getvendorDetails(\'\', \'\')">Select Vendor</li>');
             $.each(data, function(key, value) {
                 const vendorDetails = `${value.title} ${value.first_name} ${value.last_name}`;
                 const ID = value.id;
+                const vendorlistItem = $('<li class="dropdown-item customers-options text-white"></li>')
+                    .text(vendorDetails)
+                    .attr('onclick', `getvendorDetails('${ID}', '${vendorDetails}')`);
+                vendDrpDwn.append(vendorlistItem);
 
+                // Automatically select the newly added vendor
                 if (vendorDetails === fullName) {
-                    getVendorDetails(ID, vendorDetails);
+                    getvendorDetails(ID, vendorDetails);
                 }
-                const vlistItem = $(`<li class="dropdown-item vendors-options text-white" onclick="getVendorDetails('${ID}', '${vendorDetails}')">${vendorDetails}</li>`);
-                vendorDrpDwn.append(vlistItem);
             });
             console.log('Vendors RELOADED');
         },
         error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+            console.error('Error:', xhr.responseText);
         }
     });
 }
 
-function getVendorDetails(id, details) {
-    // Add implementation for getVendorDetails
-}
 
-function refreshTax() {
-    // Implementation of refreshTax
-    console.log("refreshTax function called");
-    // Add your tax refreshing logic here
-}
+
+
   
 </script>
+<script>
+    console.log('Vendor Data URL:', "{% url 'get_vendor_data' %}");
+</script>
+
   
 <!--/add vendor modal-->
 
