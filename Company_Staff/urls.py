@@ -80,6 +80,8 @@ urlpatterns = [
     path('downloadexpenseSampleImportFile',views.downloadexpenseSampleImportFile,name='downloadexpenseSampleImportFile'),
     path('get_vendor_data/', views.get_vendor_data, name='get_vendor_data'),
     path('check_expense_number/', views.check_expense_number, name='check_expense_number'),
+   # path('expenses/check-expense-number/', views.check_expense_number, name='check_expense_number'),
+
     path('expense_shareemail/<int:pk>',views.expense_shareemail,name='expense_shareemail'),
 
 

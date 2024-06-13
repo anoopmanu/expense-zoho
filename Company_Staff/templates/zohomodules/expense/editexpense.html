@@ -235,84 +235,143 @@ label{
                 </div>
                 
                 <div class="row">
-                  <label for="name" class="col-md-3 p-3 labels">Expense Account</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" value="{{edit.account }}" id="account" name="account">
-                  </div>
-                </div>
-          
-                <div class="row">
-                  <label for="expense_type" class="col-md-3 p-3 labels">Expense Type</label>
-                  <div class="col-md-6 p-3">
-                      <select class="form-control" id="expense_type" name="expense_type" style="color: white;">
-                          <option style="background-color: black;" value="">Select Expense Type</option>
-                          <option style="background-color: black;" value="goods" {% if edit.expense_type == 'goods' %} selected {% endif %}>Goods</option>
-                          <option style="background-color: black;" value="service" {% if edit.expense_type == 'service' %} selected {% endif %}>Service</option>
-                      </select>
-                  </div>
-              </div>
-              
-
-                <div class="row" id="hsnField" style="display: none;">
-                  <label for="name" class="col-md-3 p-3 labels">Hsn code</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" value="{{edit.hsn_code }}" id="hsn_code" name="hsn_code">
-                  </div>
-                </div>
-
-
-
-
-               
-              <div class="row" id="sacField" style="display: none;">
-                <label for="name" class="col-md-3 p-3 labels">sac code</label>
-                <div class="col-md-6 p-3">
-                  <input type="text" class="form-control text-white bg-black" value="{{edit.sac_code }}" id="sac_code" name="sac_code">
-                </div>
-              </div>
-          
-               
-                
-                <div class="row">
-                  <label for="branch" class="col-md-3 p-3 labels">Expense Number</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="expense_number" value="{{edit.expense_number }}" name="expense_number">
-                  </div>
-                </div>
-                <div class="row">
-                  <label for="branch" class="col-md-3 p-3 labels">Referense Number</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="referense_number" value="{{edit.reference_number}}" name="referense_number">
-                  </div>
-                </div>
-                <div class="row">
-                  <label for="opn_bal" class="col-md-3 p-3 labels">Amount</label>
-                  <div class="col-md-6 p-3">
-                    <div class="input-group">
-                      <div class="input-group-append">
-                        <select class="form-control form-select text-white bg-black" id="amount" name="amount">
-                          <option value="inr">INR</option>
-                          <option value="usd" selected>USD</option>
-                          <option value="srl" selected>SRL</option>
+                    <label for="account" class="col-md-3 p-3 labels">Expense Account</label>
+                    <div class="col-md-6 p-3">
+                        <select class="form-control form-select text-white bg-black" id="account" name="account" required>
+                            <option value="" style="color: white;">Select accounts</option>
+                            {% for v in account %}
+                            <option value="{{ v.account_name }}" {% if edit.account == v.account_name %}selected{% endif %}>
+                                {{ v.account_name }}
+                            </option>
+                            {% endfor %}
                         </select>
-                      </div>
-                      <input type="number" class="form-control text-white bg-black" id="amount"  value="{{edit.amount}}" name="amount">
                     </div>
-                  </div>
                 </div>
-          
+            
                 <div class="row">
-                  <label for="ifsc" class="col-md-3 p-3 labels">Tax Rate</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black" id="tax_rate"  value="{{edit.tax_rate}}" name="tax_rate">
-                  </div>
+                    <label for="expense_type" class="col-md-3 p-3 labels">Expense Type</label>
+                    <div class="col-md-6 p-3">
+                        <select class="form-control text-white bg-black" id="expense_type" name="expense_type" style="color: white;" >
+                            <option style="background-color: black;" value="">Select Expense Type</option>
+                            <option style="background-color: black;" value="goods" {% if edit.expense_type == 'goods' %} selected {% endif %}>Goods</option>
+                            <option style="background-color: black;" value="service" {% if edit.expense_type == 'service' %} selected {% endif %}>Service</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="row" id="hsnField" style="display: none;">
+                    <label for="hsn_code" class="col-md-3 p-3 labels">HSN Code</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control text-white bg-black" value="{{edit.hsn_code}}" id="hsn_code" name="hsn_code">
+                    </div>
+                </div>
+            
+                <div class="row" id="sacField" style="display: none;">
+                    <label for="sac_code" class="col-md-3 p-3 labels">SAC Code</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control text-white bg-black" value="{{edit.sac_code}}" id="sac_code" name="sac_code">
+                    </div>
+                </div>
+            
+              
+            
+                <div class="row">
+                    <label for="expense_number" class="col-md-3 p-3 labels">Expense Number</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control text-white bg-black" id="expense_number" value="{{edit.expense_number}}" name="expense_number">
+                    </div>
+                </div>
+            
+                <div class="row">
+                    <label for="reference_number" class="col-md-3 p-3 labels">Reference Number</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control text-white bg-black" id="reference_number" value="{{edit.reference_number}}" name="reference_number">
+                    </div>
+                </div>
+            
+                <div class="row">
+                    <label for="amount" class="col-md-3 p-3 labels">Amount</label>
+                    <div class="col-md-6 p-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <select class="form-control form-select text-white bg-black" id="currency" name="currency">
+                                    <option value="inr" {% if edit.currency == 'inr' %} selected {% endif %}>INR</option>
+                                    <option value="usd" {% if edit.currency == 'usd' %} selected {% endif %}>USD</option>
+                                    <option value="srl" {% if edit.currency == 'srl' %} selected {% endif %}>SRL</option>
+                                </select>
+                            </div>
+                           
+                            <input type="number" class="form-control text-white bg-black" id="amount" value="{{edit.amount}}" name="amount">
+                            
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="row">
+                    <label for="tax_rate" class="col-md-3 p-3 labels">TAX Rate</label>
+                    <div class="col-md-6 p-3">
+                        <select class="form-control form-select text-white bg-black" id="tax_rate" name="tax_rate">
+                            <option value="">-- Select Tax --</option>
+                            <option value="0" {% if edit.tax_rate == '0' %}selected{% endif %}>GST0[0%]</option>
+                            <option value="3" {% if edit.tax_rate == '3' %}selected{% endif %}>GST3[3%]</option>
+                            <option value="5" {% if edit.tax_rate == '5' %}selected{% endif %}>GST5[5%]</option>
+                            <option value="12" {% if edit.tax_rate == '12' %}selected{% endif %}>GST12[12%]</option>
+                            <option value="18" {% if edit.tax_rate == '18' %}selected{% endif %}>GST18[18%]</option>
+                            <option value="28" {% if edit.tax_rate == '28' %}selected{% endif %}>GST28[28%]</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row">
-                  <label for="ifsc" class="col-md-3 p-3 labels">Payment Type</label>
-                  <div class="col-md-6 p-3">
-                    <input type="text" class="form-control text-white bg-black"  value="{{edit.payment_type}}" id="payment_type" name="payment_type">
-                  </div>
+                    <label for="payment_type" class="col-md-3 p-3 labels">Payment Method</label>
+                    <div class="col-md-6 p-3">
+                        <select class="form-control form-select" name="payment_type" id="payment_type_select" onchange="showFields()">
+                            <option value="cash" {% if edit.payment_type == 'cash' %}selected{% endif %}>Cash</option>
+                            <option value="Cheque" {% if edit.payment_type == 'Cheque' %}selected{% endif %}>Cheque</option>
+                            <option value="UPI" {% if edit.payment_type == 'UPI' %}selected{% endif %}>UPI</option>
+                            {% for i in bank %}
+                            <option value="{{ i.bnk_name }}" {% if edit.payment_type == i.bnk_name %}selected{% endif %}>{{ i.bnk_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
+                
+                <div class="row dynamic-row" id="cheque_no_row" style="display: none;">
+                    <label for="cheque_no" class="col-md-3 p-3 labels">Cheque Number</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control" id="cheque_no" name="check_no" value="{{ edit.checkno }}">
+                    </div>
+                </div>
+                
+                <div class="row dynamic-row" id="upi_id_row" style="display: none;">
+                    <label for="upi_id" class="col-md-3 p-3 labels">UPI ID</label>
+                    <div class="col-md-6 p-3">
+                        <input type="text" class="form-control" id="upi_id" name="upi_id" value="{{ edit.upi }}">
+                    </div>
+                </div>
+                
+                <div class="row dynamic-row" id="acc_no_row" style="display: none;">
+                    <label for="acc_no" class="col-md-3 p-3 labels">Ac/Number</label>
+                    <div class="col-md-6 p-3">
+                        
+                        <input type="text" class="form-control" id="acc_no" name="acc_no" value="{{ edit.bankaccno }}">
+                      
+                    </div>
+                </div>
+                
+                
+                <script>
+                 document.addEventListener("DOMContentLoaded", function() {
+    showFields();
+});
+
+function showFields() {
+    var paymentType = document.getElementById("payment_type_select").value;
+    document.getElementById("cheque_no_row").style.display = paymentType === "Cheque" ? "flex" : "none";
+    document.getElementById("upi_id_row").style.display = paymentType === "UPI" ? "flex" : "none";
+    document.getElementById("acc_no_row").style.display = (paymentType !== "cash" && paymentType !== "Cheque" && paymentType !== "UPI") ? "flex" : "none";
+}
+
+                </script>
                 <br>
                 <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
                 <hr class="text-warning">
@@ -327,7 +386,7 @@ label{
                       <div class="d-flex">
                           <div class="w-100">
                               <div class="p-0 border-0 bg-none position-relative drop-box">
-                                  <input required type="text" id="vendor"  value="{{edit.vendor_name }}"  name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
+                                  <input  type="text" id="vendor"  value="{{edit.vendor_name }}"  name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
                                   <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="vend_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
                                       <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('', '')">Select Vendor</li>
                                       {% for cust in v %}
@@ -355,114 +414,169 @@ label{
                   </div>
               </div>
               
-              <div class="row mt-2" id="customerGstInDisplay" style="display: flex;">
+              <div class="row mt-2" id="vendorGstInDisplay" style="display: flex;">
                   <label for="" class="col-md-3 labels">GSTIN</label>
                   <div class="col-md-6">
                       <input type="text" class="form-control text-white bg-black" value="{{edit.vendor_gstin }}" id="vendorGSTIN" name="vendor_gstin" readonly>
                   </div>
               </div>
               
-              <div class="row mt-2" id="billAddressSection">
-                  <label for="" class="col-md-3 labels">Billing Address</label>
-                  <div class="col-md-6">
-                      <textarea class="form-control text-white bg-black" value="{{edit.vendor_billing_address }}" name="vendor_billing_address" id="vbillAddress" rows="4" readonly></textarea>
-                  </div>
-              </div>
+              <div class="row mt-2" id="vbillAddressSection">
+                <label for="" class="col-md-3 labels">Billing Address</label>
+                <div class="col-md-6">
+                    <textarea class="form-control text-white bg-black" name="vendor_billing_address" id="vbillAddress" rows="4" readonly>{{ edit.vendor_billing_address }}</textarea>
+                </div>
+            </div>
               
-              <div class="row mt-2">
-                  <label for="" class="col-md-3 labels">Source of Supply</label>
-                  <div class="col-md-6">
-                      <input hidden value="{{cmp.state}}" id="cmpstate">
-                      <select name="vendor_source_of_supply" value="{{edit.vendor_source_of_supply }}" id="sourceOfSupply" class="form-control bg-black text-white">
-                          <option value="" selected>Select Place of Supply</option>
-                          <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option>
-                          <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
-                          <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> 
-                          <option value="volvo">[AS]-Assam</option>
-                          <option value="[BR]-Bihar">[BR]-Bihar</option> 
-                          <option value="volvo">[CH]-	Chandhigarh</option>
-                          <option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
-                          <option value="[DD]-Daman Diu">[DD]-Daman Diu</option>
-                          <option value="volvo">[DL]-	Delhi</option>
-                          <option value="[GA]-Goa">[GA]-Goa</option> 
-                          <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
-                          <option value="[HR]-Haryana">[HR]-Haryana</option> 
-                          <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
-                          <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option>
-                          <option value="[JH]-Jharkand">[JH]-Jharkand</option>
-                          <option value="[KA]-Karnataka">[KA]-Karnataka</option>
-                          <option value="[KL]-Kerala">[KL]-Kerala</option>
-                          <option value="[LA]-Ladakh">[LA]-Ladakh</option>
-                          <option value="[LD]-Lakshadweep">[LD]-Lakshadweep</option>
-                          <option value="[MP]-Madhyapradesh">[MP]-Madhyapradesh</option>
-                          <option value="[MH]-Maharashtra">[MH]-Maharashtra</option>
-                          <option value="[MN]-Manipur">[MN]-Manipur</option>  
-                          <option value="[ML]-Meghalaya">[ML]-Meghalaya</option>
-                          <option value="[MZ]-Mizoram">[MZ]-Mizoram</option>
-                          <option value="[NL]-Nagaland">[NL]-Nagaland</option> 
-                          <option value="[NL]-Nagaland">[NL]-Nagaland</option>
-                          <option value="[OD]-Odisha">[OD]-Odisha</option>
-                          <option value="[PY]-Puducherry">[PY]-Puducherry</option>
-                          <option value="[PB]-Punjab">[PB]-Punjab.</option>
-                          <option value="[RL]-Rajasthan">[RL]-Rajasthan</option>
-                          <option value="[SK]-Sikkim">[SK]-Sikkim</option>
-                          <option value="[TN]-Tamilnadu">[TN]-Tamilnadu</option>
-                          <option value="[TS]-Telenghana">[TS]-Telenghana</option>
-                          <option value="[TR]-Tripura">[TR]-Tripura</option>
-                          <option value="[UP]-Uttar Pradesh">[UP]-Uttar Pradesh</option>
-                          <option value="[UK]-Utharakhand">[UK]-Utharakhand</option>
-                          <option value="[WB]-West Bengal">[WB]-West Bengal</option>
-                          <option value="[OT]-Other Territory">[OT]-Other Territory</option>
               
-                          <!-- Add your options here -->
-                      </select>
-                  </div>
-              </div>
+      <div class="row mt-2">
+        <label for="" class="col-md-3 labels">Source of Supply</label>
+        <div class="col-md-6">
+            <input type="hidden" value="{{ cmp.state }}" id="cmpstate">
+            <select name="vendor_source_of_supply" id="sourceOfSupply" class="form-control bg-black text-white">
+                <option value="" {% if not edit.vendor_source_of_supply %}selected{% endif %}>Select Place of Supply</option>
+                <option value="[AN]-Andaman And Nicobar Islands" {% if edit.vendor_source_of_supply == "[AN]-Andaman And Nicobar Islands" %}selected{% endif %}>[AN]-Andaman And Nicobar Islands</option>
+                <option value="[AD]-Andhra Pradesh" {% if edit.vendor_source_of_supply == "[AD]-Andhra Pradesh" %}selected{% endif %}>[AD]-Andhra Pradesh</option>
+                <option value="[AR]-Arunachal Pradesh" {% if edit.vendor_source_of_supply == "[AR]-Arunachal Pradesh" %}selected{% endif %}>[AR]-Arunachal Pradesh</option>
+                <option value="[AS]-Assam" {% if edit.vendor_source_of_supply == "[AS]-Assam" %}selected{% endif %}>[AS]-Assam</option>
+                <option value="[BR]-Bihar" {% if edit.vendor_source_of_supply == "[BR]-Bihar" %}selected{% endif %}>[BR]-Bihar</option>
+                <option value="[CH]-Chandhigarh" {% if edit.vendor_source_of_supply == "[CH]-Chandhigarh" %}selected{% endif %}>[CH]-Chandhigarh</option>
+                <option value="[CG]-Chattisgarh" {% if edit.vendor_source_of_supply == "[CG]-Chattisgarh" %}selected{% endif %}>[CG]-Chattisgarh</option>
+                <option value="[DD]-Daman Diu" {% if edit.vendor_source_of_supply == "[DD]-Daman Diu" %}selected{% endif %}>[DD]-Daman Diu</option>
+                <option value="[DL]-Delhi" {% if edit.vendor_source_of_supply == "[DL]-Delhi" %}selected{% endif %}>[DL]-Delhi</option>
+                <option value="[GA]-Goa" {% if edit.vendor_source_of_supply == "[GA]-Goa" %}selected{% endif %}>[GA]-Goa</option>
+                <option value="[GJ]-Gujarat" {% if edit.vendor_source_of_supply == "[GJ]-Gujarat" %}selected{% endif %}>[GJ]-Gujarat</option>
+                <option value="[HR]-Haryana" {% if edit.vendor_source_of_supply == "[HR]-Haryana" %}selected{% endif %}>[HR]-Haryana</option>
+                <option value="[HP]-Himachal Pradesh" {% if edit.vendor_source_of_supply == "[HP]-Himachal Pradesh" %}selected{% endif %}>[HP]-Himachal Pradesh</option>
+                <option value="[JK]-Jammu And Kashmir" {% if edit.vendor_source_of_supply == "[JK]-Jammu And Kashmir" %}selected{% endif %}>[JK]-Jammu And Kashmir</option>
+                <option value="[JH]-Jharkand" {% if edit.vendor_source_of_supply == "[JH]-Jharkand" %}selected{% endif %}>[JH]-Jharkand</option>
+                <option value="[KA]-Karnataka" {% if edit.vendor_source_of_supply == "[KA]-Karnataka" %}selected{% endif %}>[KA]-Karnataka</option>
+                <option value="[KL]-Kerala" {% if edit.vendor_source_of_supply == "[KL]-Kerala" %}selected{% endif %}>[KL]-Kerala</option>
+                <option value="[LA]-Ladakh" {% if edit.vendor_source_of_supply == "[LA]-Ladakh" %}selected{% endif %}>[LA]-Ladakh</option>
+                <option value="[LD]-Lakshadweep" {% if edit.vendor_source_of_supply == "[LD]-Lakshadweep" %}selected{% endif %}>[LD]-Lakshadweep</option>
+                <option value="[MP]-Madhyapradesh" {% if edit.vendor_source_of_supply == "[MP]-Madhyapradesh" %}selected{% endif %}>[MP]-Madhyapradesh</option>
+                <option value="[MH]-Maharashtra" {% if edit.vendor_source_of_supply == "[MH]-Maharashtra" %}selected{% endif %}>[MH]-Maharashtra</option>
+                <option value="[MN]-Manipur" {% if edit.vendor_source_of_supply == "[MN]-Manipur" %}selected{% endif %}>[MN]-Manipur</option>
+                <option value="[ML]-Meghalaya" {% if edit.vendor_source_of_supply == "[ML]-Meghalaya" %}selected{% endif %}>[ML]-Meghalaya</option>
+                <option value="[MZ]-Mizoram" {% if edit.vendor_source_of_supply == "[MZ]-Mizoram" %}selected{% endif %}>[MZ]-Mizoram</option>
+                <option value="[NL]-Nagaland" {% if edit.vendor_source_of_supply == "[NL]-Nagaland" %}selected{% endif %}>[NL]-Nagaland</option>
+                <option value="[OD]-Odisha" {% if edit.vendor_source_of_supply == "[OD]-Odisha" %}selected{% endif %}>[OD]-Odisha</option>
+                <option value="[PY]-Puducherry" {% if edit.vendor_source_of_supply == "[PY]-Puducherry" %}selected{% endif %}>[PY]-Puducherry</option>
+                <option value="[PB]-Punjab" {% if edit.vendor_source_of_supply == "[PB]-Punjab" %}selected{% endif %}>[PB]-Punjab</option>
+                <option value="[RL]-Rajasthan" {% if edit.vendor_source_of_supply == "[RL]-Rajasthan" %}selected{% endif %}>[RL]-Rajasthan</option>
+                <option value="[SK]-Sikkim" {% if edit.vendor_source_of_supply == "[SK]-Sikkim" %}selected{% endif %}>[SK]-Sikkim</option>
+                <option value="[TN]-Tamilnadu" {% if edit.vendor_source_of_supply == "[TN]-Tamilnadu" %}selected{% endif %}>[TN]-Tamilnadu</option>
+                <option value="[TS]-Telenghana" {% if edit.vendor_source_of_supply == "[TS]-Telenghana" %}selected{% endif %}>[TS]-Telenghana</option>
+                <option value="[TR]-Tripura" {% if edit.vendor_source_of_supply == "[TR]-Tripura" %}selected{% endif %}>[TR]-Tripura</option>
+                <option value="[UP]-Uttar Pradesh" {% if edit.vendor_source_of_supply == "[UP]-Uttar Pradesh" %}selected{% endif %}>[UP]-Uttar Pradesh</option>
+                <option value="[UK]-Utharakhand" {% if edit.vendor_source_of_supply == "[UK]-Utharakhand" %}selected{% endif %}>[UK]-Utharakhand</option>
+                <option value="[WB]-West Bengal" {% if edit.vendor_source_of_supply == "[WB]-West Bengal" %}selected{% endif %}>[WB]-West Bengal</option>
+                <option value="[OT]-Other Territory" {% if edit.vendor_source_of_supply == "[OT]-Other Territory" %}selected{% endif %}>[OT]-Other Territory</option>
+            </select>
+        </div>
+    </div>
               <script>
-                function getvendorDetails(vendId, name) {
-                  $('#vendor').val(name);
-                  console.log('name', name);
-                  if ($('#vendor').val() != "") {
-                      $('#vendErr').text('');
-                      $.ajax({
-                          type: 'POST',
-                          url: "{% url 'getvendorDetailsAjax' %}",
-                          data: {
-                              id: vendId,
-                              csrfmiddlewaretoken: '{{ csrf_token }}',
-                          },
-                          success: function(data) {
-                              console.log('AJAX-Response-->', data);
-                              document.getElementById('vendorId').value = data.idv;
-                              document.getElementById('vendorEmail').value = data.vemail; 
-                              document.getElementById('sourceOfSupply').value = data.vshipState;
-                              document.getElementById('vendorGstType').value = data.vgstType;
-                              document.getElementById('vbillAddress').value = data.vstreet;
-                              document.getElementById('vendorGSTIN').value = data.vgstNo;
-                             
-                              if (data.vstreet == "" && data.vcity == "" && data.vstate == "") {
-                                  $("#vbillAddressSection").hide(); // Hide the billing address section if all address fields are empty
-                              } else {
-                                  $('#vbillAddressSection').show(); // Show the billing address section if any address field has a value
-                                  document.getElementById('vbillAddress').value = data.vstreet + ',' + data.vcity + '\n' + data.vstate + '\n' + data.vcountry + '\n' + data.vpincode;
-                              }
-                             
-                              $('#applyPriceList').prop('checked', false); // Uncheck the applyPriceList checkbox
-                              refreshTax();
-                              checkPriceList();
-                          }
-                      });
-                  } else {
-                      document.getElementById('vendorEmail').value = "";
-                      document.getElementById('sourceOfSupply').value = "";
-                      document.getElementById('vendorGstType').value = "";
-                      document.getElementById('vbillAddress').value = "";
-                      document.getElementById('vendorGSTIN').value = "";
-                      $('#vendErr').text('Select a customer..');
+                
+             function getvendorDetails(vendId, name) {
+            $('#vendor').val(name);
+            console.log('name', name);
+            if ($('#vendor').val() != "") {
+                $('#vendErr').text('');
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'getvendorDetailsAjax' %}",
+                    data: {
+                        id: vendId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function(data) {
+                        console.log('AJAX-Response-->', data);
+                        document.getElementById('vendorId').value = data.idv;
+                        document.getElementById('vendorEmail').value = data.vemail; 
+                        document.getElementById('sourceOfSupply').value = data.vshipState;
+                        document.getElementById('vendorGstType').value = data.vgstType;
+                        document.getElementById('vendorGSTIN').value = data.vgstNo;
+
+                        // Handle Billing Address
+                        if (data.vstreet || data.vcity || data.vstate) {
+                            $('#vbillAddressSection').show();
+                            document.getElementById('vbillAddress').value = 
+                                (data.vstreet ? data.vstreet + ', ' : '') + 
+                                (data.vcity ? data.vcity + '\n' : '') + 
+                                (data.vstate ? data.vstate + '\n' : '') + 
+                                (data.vcountry ? data.vcountry + '\n' : '') + 
+                                (data.vpincode ? data.vpincode : '');
+                        } else {
+                            $('#vbillAddressSection').hide();
+                        }
+
+                        // Handle GSTIN
+                        if (data.vgstNo) {
+                            $('#vendorGstInDisplay').show();
+                        } else {
+                            $('#vendorGstInDisplay').hide();
+                        }
+
+                        // Handle Source of Supply
+                        if (data.vshipState) {
+                            $('#vendorsourceOfSupplySection').show();
+                        } else {
+                            $('#vendorsourceOfSupplySection').hide();
+                        }
+
+                        $('#applyPriceList').prop('checked', false); // Uncheck the applyPriceList checkbox
+                        refreshTax();
+                        checkPriceList();
+                    }
+                });
+            } else {
+                document.getElementById('vendorEmail').value = "";
+                document.getElementById('sourceOfSupply').value = "";
+                document.getElementById('vendorGstType').value = "";
+                document.getElementById('vbillAddress').value = "";
+                document.getElementById('vendorGSTIN').value = "";
+                $('#vendErr').text('Select a customer..');
+            }
+        }
+
+
+              
+              
+              </script>
+              <script>
+                window.onload = function() {
+                  // Check if fields are null and hide them if necessary
+                  if (!document.getElementById('vendorEmail').value) {
+                    document.getElementById('vendorEmailSection').style.display = 'none';
                   }
-              }
-              
-              
+                  if (!document.getElementById('vendorGstType').value) {
+                    document.getElementById('vendorGstTypeSection').style.display = 'none';
+                  }
+                  if (!document.getElementById('vendorGSTIN').value) {
+                    document.getElementById('vendorGstInDisplay').style.display = 'none';
+                  }
+                  if (!document.getElementById('vbillAddress').value) {
+                    document.getElementById('vbillAddressSection').style.display = 'none';
+                  }
+                  if (!document.getElementById('sourceOfSupply').value) {
+                    document.getElementById('sourceOfSupplySection').style.display = 'none';
+                  }
+                  if (!document.getElementById('customerEmail').value) {
+            document.getElementById('customerEmailSection').style.display = 'none';
+        }
+        if (!document.getElementById('customerGstType').value) {
+            document.getElementById('customerGstTypeSection').style.display = 'none';
+        }
+        if (!document.getElementById('customerGSTIN').value) {
+            document.getElementById('customerGstInDisplay').style.display = 'none';
+        }
+        if (!document.getElementById('billAddress').value) {
+            document.getElementById('billAddressSection').style.display = 'none';
+        }
+        if (!document.getElementById('placeOfSupply').value) {
+            document.getElementById('sourceOfSupplySection').style.display = 'none';
+        }
+    };
               </script>
               
               
@@ -485,7 +599,7 @@ label{
                       <div class="d-flex">
                           <div class="w-100">
                               <div class="p-0 border-0 bg-none position-relative drop-box">
-                                  <input required type="text" id="customer" value="{{edit.customer_name }}" name="customer_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filterCustomers()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Customer.." autocomplete="off">
+                                  <input  type="text" id="customer" value="{{edit.customer_name }}" name="customer_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filterCustomers()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Customer.." autocomplete="off">
                                   <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="cust_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
                                       <li class="dropdown-item customers-options text-white" onclick="getCustomerDetails('', '')">Select Customer</li>
                                       {% for cust in c %}
@@ -521,61 +635,59 @@ label{
               </div>
               
               <div class="row mt-2" id="billAddressSection">
-                  <label for="" class="col-md-3 labels">Billing Address</label>
-                  <div class="col-md-6">
-                      <textarea class="form-control text-white bg-black" value="{{editcustomer_billing_address}}" name="customer_billing_address" id="billAddress" rows="4" readonly></textarea>
-                  </div>
-              </div>
+                <label for="" class="col-md-3 labels">Billing Address</label>
+                <div class="col-md-6">
+                    <textarea class="form-control text-white bg-black" name="customer_billing_address" id="billAddress" rows="4" readonly>{{ edit.customer_billing_address }}</textarea>
+                </div>
+            </div>
               
               <div class="row mt-2">
-                  <label for="" class="col-md-3 labels">Place of Supply</label>
-                  <div class="col-md-6">
-                      <input hidden value="{{cmp.state}}" id="cmpstate">
-                      <select name="customer_price_of_supply"  id="placeOfSupply" class="form-control bg-black text-white">
-                          <option value="{{edit.customer_price_of_supply }}" selected>Select Place of Supply</option>
-                          <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option>
-                          <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
-                          <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> 
-                          <option value="volvo">[AS]-Assam</option>
-                          <option value="[BR]-Bihar">[BR]-Bihar</option> 
-                          <option value="volvo">[CH]-	Chandhigarh</option>
-                          <option value="[CG]-Chattisgarh">[CG]-Chattisgarh</option>
-                          <option value="[DD]-Daman Diu">[DD]-Daman Diu</option>
-                          <option value="volvo">[DL]-	Delhi</option>
-                          <option value="[GA]-Goa">[GA]-Goa</option> 
-                          <option value="[GJ]-Gujarat">[GJ]-Gujarat</option>
-                          <option value="[HR]-Haryana">[HR]-Haryana</option> 
-                          <option value="[HP]-Himachal Pradesh">[HP]-Himachal Pradesh</option>
-                          <option value="[JK]-Jammu And Kashmir">[JK]-Jammu And Kashmir</option>
-                          <option value="[JH]-Jharkand">[JH]-Jharkand</option>
-                          <option value="[KA]-Karnataka">[KA]-Karnataka</option>
-                          <option value="[KL]-Kerala">[KL]-Kerala</option>
-                          <option value="[LA]-Ladakh">[LA]-Ladakh</option>
-                          <option value="[LD]-Lakshadweep">[LD]-Lakshadweep</option>
-                          <option value="[MP]-Madhyapradesh">[MP]-Madhyapradesh</option>
-                          <option value="[MH]-Maharashtra">[MH]-Maharashtra</option>
-                          <option value="[MN]-Manipur">[MN]-Manipur</option>  
-                          <option value="[ML]-Meghalaya">[ML]-Meghalaya</option>
-                          <option value="[MZ]-Mizoram">[MZ]-Mizoram</option>
-                          <option value="[NL]-Nagaland">[NL]-Nagaland</option> 
-                          <option value="[NL]-Nagaland">[NL]-Nagaland</option>
-                          <option value="[OD]-Odisha">[OD]-Odisha</option>
-                          <option value="[PY]-Puducherry">[PY]-Puducherry</option>
-                          <option value="[PB]-Punjab">[PB]-Punjab.</option>
-                          <option value="[RL]-Rajasthan">[RL]-Rajasthan</option>
-                          <option value="[SK]-Sikkim">[SK]-Sikkim</option>
-                          <option value="[TN]-Tamilnadu">[TN]-Tamilnadu</option>
-                          <option value="[TS]-Telenghana">[TS]-Telenghana</option>
-                          <option value="[TR]-Tripura">[TR]-Tripura</option>
-                          <option value="[UP]-Uttar Pradesh">[UP]-Uttar Pradesh</option>
-                          <option value="[UK]-Utharakhand">[UK]-Utharakhand</option>
-                          <option value="[WB]-West Bengal">[WB]-West Bengal</option>
-                          <option value="[OT]-Other Territory">[OT]-Other Territory</option>
-      
-                          <!-- Add your options here -->
-                      </select>
-                  </div>
-              </div>
+                <label for="" class="col-md-3 labels">Place of Supply</label>
+                <div class="col-md-6">
+                    <input type="hidden" value="{{ cmp.state }}" id="cmpstate">
+                    <select name="customer_price_of_supply" id="placeOfSupply" class="form-control bg-black text-white">
+                        <option value="" {% if not edit.customer_price_of_supply %}selected{% endif %}>Select Place of Supply</option>
+                        <option value="[AN]-Andaman And Nicobar Islands" {% if edit.customer_price_of_supply == "[AN]-Andaman And Nicobar Islands" %}selected{% endif %}>[AN]-Andaman And Nicobar Islands</option>
+                        <option value="[AD]-Andhra Pradesh" {% if edit.customer_price_of_supply == "[AD]-Andhra Pradesh" %}selected{% endif %}>[AD]-Andhra Pradesh</option>
+                        <option value="[AR]-Arunachal Pradesh" {% if edit.customer_price_of_supply == "[AR]-Arunachal Pradesh" %}selected{% endif %}>[AR]-Arunachal Pradesh</option>
+                        <option value="[AS]-Assam" {% if edit.customer_price_of_supply == "[AS]-Assam" %}selected{% endif %}>[AS]-Assam</option>
+                        <option value="[BR]-Bihar" {% if edit.customer_price_of_supply == "[BR]-Bihar" %}selected{% endif %}>[BR]-Bihar</option>
+                        <option value="[CH]-Chandhigarh" {% if edit.customer_price_of_supply == "[CH]-Chandhigarh" %}selected{% endif %}>[CH]-Chandhigarh</option>
+                        <option value="[CG]-Chattisgarh" {% if edit.customer_price_of_supply == "[CG]-Chattisgarh" %}selected{% endif %}>[CG]-Chattisgarh</option>
+                        <option value="[DD]-Daman Diu" {% if edit.customer_price_of_supply == "[DD]-Daman Diu" %}selected{% endif %}>[DD]-Daman Diu</option>
+                        <option value="[DL]-Delhi" {% if edit.customer_price_of_supply == "[DL]-Delhi" %}selected{% endif %}>[DL]-Delhi</option>
+                        <option value="[GA]-Goa" {% if edit.customer_price_of_supply == "[GA]-Goa" %}selected{% endif %}>[GA]-Goa</option>
+                        <option value="[GJ]-Gujarat" {% if edit.customer_price_of_supply == "[GJ]-Gujarat" %}selected{% endif %}>[GJ]-Gujarat</option>
+                        <option value="[HR]-Haryana" {% if edit.customer_price_of_supply == "[HR]-Haryana" %}selected{% endif %}>[HR]-Haryana</option>
+                        <option value="[HP]-Himachal Pradesh" {% if edit.customer_price_of_supply == "[HP]-Himachal Pradesh" %}selected{% endif %}>[HP]-Himachal Pradesh</option>
+                        <option value="[JK]-Jammu And Kashmir" {% if edit.customer_price_of_supply == "[JK]-Jammu And Kashmir" %}selected{% endif %}>[JK]-Jammu And Kashmir</option>
+                        <option value="[JH]-Jharkand" {% if edit.customer_price_of_supply == "[JH]-Jharkand" %}selected{% endif %}>[JH]-Jharkand</option>
+                        <option value="[KA]-Karnataka" {% if edit.customer_price_of_supply == "[KA]-Karnataka" %}selected{% endif %}>[KA]-Karnataka</option>
+                        <option value="[KL]-Kerala" {% if edit.customer_price_of_supply == "[KL]-Kerala" %}selected{% endif %}>[KL]-Kerala</option>
+                        <option value="[LA]-Ladakh" {% if edit.customer_price_of_supply == "[LA]-Ladakh" %}selected{% endif %}>[LA]-Ladakh</option>
+                        <option value="[LD]-Lakshadweep" {% if edit.customer_price_of_supply == "[LD]-Lakshadweep" %}selected{% endif %}>[LD]-Lakshadweep</option>
+                        <option value="[MP]-Madhyapradesh" {% if edit.customer_price_of_supply == "[MP]-Madhyapradesh" %}selected{% endif %}>[MP]-Madhyapradesh</option>
+                        <option value="[MH]-Maharashtra" {% if edit.customer_price_of_supply == "[MH]-Maharashtra" %}selected{% endif %}>[MH]-Maharashtra</option>
+                        <option value="[MN]-Manipur" {% if edit.customer_price_of_supply == "[MN]-Manipur" %}selected{% endif %}>[MN]-Manipur</option>
+                        <option value="[ML]-Meghalaya" {% if edit.customer_price_of_supply == "[ML]-Meghalaya" %}selected{% endif %}>[ML]-Meghalaya</option>
+                        <option value="[MZ]-Mizoram" {% if edit.customer_price_of_supply == "[MZ]-Mizoram" %}selected{% endif %}>[MZ]-Mizoram</option>
+                        <option value="[NL]-Nagaland" {% if edit.customer_price_of_supply == "[NL]-Nagaland" %}selected{% endif %}>[NL]-Nagaland</option>
+                        <option value="[OD]-Odisha" {% if edit.customer_price_of_supply == "[OD]-Odisha" %}selected{% endif %}>[OD]-Odisha</option>
+                        <option value="[PY]-Puducherry" {% if edit.customer_price_of_supply == "[PY]-Puducherry" %}selected{% endif %}>[PY]-Puducherry</option>
+                        <option value="[PB]-Punjab" {% if edit.customer_price_of_supply == "[PB]-Punjab" %}selected{% endif %}>[PB]-Punjab</option>
+                        <option value="[RL]-Rajasthan" {% if edit.customer_price_of_supply == "[RL]-Rajasthan" %}selected{% endif %}>[RL]-Rajasthan</option>
+                        <option value="[SK]-Sikkim" {% if edit.customer_price_of_supply == "[SK]-Sikkim" %}selected{% endif %}>[SK]-Sikkim</option>
+                        <option value="[TN]-Tamilnadu" {% if edit.customer_price_of_supply == "[TN]-Tamilnadu" %}selected{% endif %}>[TN]-Tamilnadu</option>
+                        <option value="[TS]-Telenghana" {% if edit.customer_price_of_supply == "[TS]-Telenghana" %}selected{% endif %}>[TS]-Telenghana</option>
+                        <option value="[TR]-Tripura" {% if edit.customer_price_of_supply == "[TR]-Tripura" %}selected{% endif %}>[TR]-Tripura</option>
+                        <option value="[UP]-Uttar Pradesh" {% if edit.customer_price_of_supply == "[UP]-Uttar Pradesh" %}selected{% endif %}>[UP]-Uttar Pradesh</option>
+                        <option value="[UK]-Utharakhand" {% if edit.customer_price_of_supply == "[UK]-Utharakhand" %}selected{% endif %}>[UK]-Utharakhand</option>
+                        <option value="[WB]-West Bengal" {% if edit.customer_price_of_supply == "[WB]-West Bengal" %}selected{% endif %}>[WB]-West Bengal</option>
+                        <option value="[OT]-Other Territory" {% if edit.customer_price_of_supply == "[OT]-Other Territory" %}selected{% endif %}>[OT]-Other Territory</option>
+                    </select>
+                </div>
+            </div>
+            
               <script>
                 function filterCustomers() {
                     var options = $('#cust_drop').children();
@@ -590,51 +702,64 @@ label{
                 }
             
                 function getCustomerDetails(custId, name) {
-                    $('#customer').val(name);
-                    console.log('name', name);
-                    if ($('#customer').val() != "") {
-                        $('#custErr').text('');
-                        $.ajax({
-                            type: 'POST',
-                            url: "{% url 'getCustomerDetailsAjax' %}",
-                            data: {
-                                id: custId,
-                                csrfmiddlewaretoken: '{{ csrf_token }}',
-                            },
-                            success: function(data) {
-                                console.log('AJAX-Response-->', data);
-                                document.getElementById('customerId').value = data.id;
-                                document.getElementById('customerEmail').value = data.email;
-                                document.getElementById('placeOfSupply').value = data.shipState;
-                                document.getElementById('customerGstType').value = data.gstType;
-                                if (data.street == "" && data.city == "" && data.state == "") {
-                                    $("#billAddressSection").hide();
-                                } else {
-                                    $('#billAddressSection').show();
-                                    document.getElementById('billAddress').value = data.street + ',' + data.city + '\n' + data.state + '\n' + data.country + '\n' + data.pincode;
-                                }
-                                if (data.gstin) {
-                                    document.getElementById('customerGstInDisplay').style.display = 'flex';
-                                    document.getElementById('customerGSTIN').value = data.gstNo;
-                                } else {
-                                    document.getElementById('customerGstInDisplay').style.display = 'none';
-                                    document.getElementById('customerGSTIN').value = '';
-                                }
-                                $('#applyPriceList').prop('checked') ? $('#applyPriceList').prop('checked', false) : $('#applyPriceList').prop('checked', false);
-                                refreshTax();
-                                checkPriceList();
-                            }
-                        });
-                    } else {
-                        document.getElementById('customerEmail').value = "";
-                        document.getElementById('placeOfSupply').value = "";
-                        document.getElementById('customerGstType').value = "";
-                        document.getElementById('billAddress').value = "";
-                        document.getElementById('customerGSTIN').value = "";
-                        $('#custErr').text('Select a customer..');
-                    }
+    $('#customer').val(name);
+    console.log('name', name);
+    if ($('#customer').val() != "") {
+        $('#custErr').text('');
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'getCustomerDetailsAjax' %}",
+            data: {
+                id: custId,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function(data) {
+                console.log('AJAX-Response-->', data);
+                $('#customerId').val(data.id);
+                $('#customerEmail').val(data.email);
+                $('#placeOfSupply').val(data.shipState);
+                $('#customerGstType').val(data.gstType);
+
+                // Always show the billing address section
+                $('#billAddressSection').show();
+                if (data.street || data.city || data.state) {
+                    $('#billAddress').val(data.street + ', ' + data.city + '\n' + data.state + '\n' + data.country + '\n' + data.pincode);
+               
+                } else {
+                    $('#billAddressSection').hide();
+                    $('#billAddress').val('');
                 }
+
+
+                if (data.gstin) {
+                    $('#customerGstInDisplay').show();
+                    $('#customerGSTIN').val(data.gstNo);
+                } else {
+                    $('#customerGstInDisplay').hide();
+                    $('#customerGSTIN').val('');
+                }
+
+                $('#applyPriceList').prop('checked', false);
+                refreshTax();
+                checkPriceList();
+            }
+        });
+    } else {
+        $('#customerEmail').val("");
+        $('#placeOfSupply').val("");
+        $('#customerGstType').val("");
+        $('#billAddress').val("");
+        $('#customerGSTIN').val("");
+        $('#billAddressSection').show(); // Always show the billing address section
+        $('#customerGstInDisplay').hide();
+        $('#custErr').text('Select a customer..');
+    }
+}
+
+
+
             </script>
+            
                 <div class="row">
                   <label for="avatar" class="col-md-3 p-3 labels">Choose File:</label>
                   <div class="col-md-6 p-3">
@@ -656,8 +781,12 @@ label{
                 
 
                 <br>
-                <input type="submit" class="btn save_btn mt-2 my-4 mx-2" style="background-color: chocolate; color: white;" value="SAVE" id="save">
-                <input class="btn save_btn my-4 mt-2" style="background-color: chocolate; color: white;" type="reset" value="RESET" id="reset">
+                <div class="row">
+                    <div class="col-md-6 p-3">
+                        <input type="submit" class="btn save_btn mt-2 my-4 mx-2" style="background-color: chocolate; color: white;" value="SAVE" id="save">
+                        <button type="button" class="btn save_btn mt-2 my-4 mx-2" style="background-color: chocolate; color: white;" onclick="window.location.href=''" id="cancel">CANCEL</button>
+                    </div>
+                </div>
               </form>
             </div>
           </div>
@@ -1032,20 +1161,57 @@ label{
                               </div>
                           
                               <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Phone </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input id="vendorbphone_num"  type="tel" pattern="[0-9]{10}" class="form-control bg-light text-dark" name="vendorbphone" >
-                                      <label for="" id="vendorbphone_label"></label>      
-                                  </div>
-                              </div>
-                              <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Fax </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" onmouseout="vendorfax_number()"  onclick="vendobphone_number()" name="vendorbfax" id="vendorbfx">  
-                                  
-                                      <label for="" id="fax_label"></label> 
-                                  </div>
-                              </div>
+                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" for="vendorbphone_num">Phone</label>                    
+                                <div class="col-sm-12 col-md-6 col-lg-6">
+                                    <input id="vendorbphone_num" type="tel" class="form-control bg-light text-dark" name="vendorbphone">
+                                    <span id="vendorbphone_label" class="mt-2 text-danger" style="font-size: 10px;"></span>
+                                </div>
+                            </div>
+                            <script>
+                                document.getElementById('vendorbphone_num').addEventListener('input', function() {
+                                    const phoneInput = this.value;
+                                    const errorSpan = document.getElementById('vendorbphone_label');
+                                
+                                    const phonePattern = /^[0-9]{10}$/;
+                                
+                                    if (phonePattern.test(phoneInput)) {
+                                        errorSpan.textContent = 'Valid phone number';
+                                        errorSpan.classList.remove('text-danger');
+                                        errorSpan.classList.add('text-success');
+                                    } else {
+                                        errorSpan.textContent = 'Phone number must be exactly 10 digits';
+                                        errorSpan.classList.remove('text-success');
+                                        errorSpan.classList.add('text-danger');
+                                    }
+                                });
+                                </script>
+                                
+                            
+                                <div class="form-group row mt-4">
+                                    <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" for="vendorbfx">Fax</label>                    
+                                    <div class="col-sm-12 col-md-6 col-lg-6">
+                                        <input type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" name="vendorbfax" id="vendorbfx">  
+                                        <span id="fax_message" class="mt-2" style="font-size: 10px;"></span>
+                                    </div>
+                                </div>
+                                <script>
+                                    document.getElementById('vendorbfx').addEventListener('input', function() {
+                                        const faxInput = this.value;
+                                        const messageSpan = document.getElementById('fax_message');
+                                    
+                                        const faxPattern = /^[0-9]{7}$/;
+                                    
+                                        if (faxPattern.test(faxInput)) {
+                                            messageSpan.textContent = 'Valid fax number';
+                                            messageSpan.classList.remove('text-danger');
+                                            messageSpan.classList.add('text-success');
+                                        } else {
+                                            messageSpan.textContent = 'Fax number must be exactly 7 digits';
+                                            messageSpan.classList.remove('text-success');
+                                            messageSpan.classList.add('text-danger');
+                                        }
+                                    });
+                                    </script>
     
                           </div>
                           <div class="col-sm-12 col-md-6 col-lg-6">
@@ -1099,20 +1265,61 @@ label{
                           
     
                               <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Phone </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{10}" style="color: white;" name="vendorsphone" id="vendorsphone_num">  
-                                      <label for="" id="vendorsphone_label"></label>    
-                                  </div>
-                              </div>
-                              <div class="form-group row mt-4">
-                                  <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Fax </label>                    
-                                  <div class=" col-sm-12 col-md-6 col-lg-6">
-                                      <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" style="color: white;" name="vendorsfax" onclick="vendorsphone_number()" onmouseout="vendorsfax_number()" id="vendorsfx"> 
-                                      <label for="" id="vendorsfax_label"></label>     
-                                  </div>
-                              </div>
-    
+                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Phone </label>                    
+                                <div class=" col-sm-12 col-md-6 col-lg-6">
+                                    <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{10}" style="color: white;" name="vendorsphone" id="vendorsphone_num" >  
+                                    <label for="" id="vendorsphone_label"></label>    
+                                    <span id="vendorwork-phone-message" class="mt-2 " style="font-size: 10px;"></span >
+                                      <span id="vendorsphone_label" class="mt-2 text-danger" style="font-size: 10px;"></span >
+                                </div>
+                            </div>
+                            <script>
+                              document.getElementById('vendorsphone_num').addEventListener('input', function() {
+      const phoneInput = this.value;
+      const errorSpan = document.getElementById('vendorsphone_label');
+      
+      const phonePattern = /^[0-9]{10}$/;
+      
+      if (phonePattern.test(phoneInput)) {
+          errorSpan.textContent = 'Valid phone number';
+          errorSpan.classList.remove('text-danger');
+          errorSpan.classList.add('text-success');
+      } else {
+          errorSpan.textContent = 'Phone number must be exactly 10 digits';
+          errorSpan.classList.remove('text-success');
+          errorSpan.classList.add('text-danger');
+      }
+  });
+                            </script>
+                            
+                              
+                           
+                            <div class="form-group row mt-4">
+                                <label class="col-sm-12 col-md-3 col-lg-3 col-form-label text-white" > Fax </label>                    
+                                <div class=" col-sm-12 col-md-6 col-lg-6">
+                                    <input  type="tel" class="form-control bg-light text-dark" pattern="[0-9]{7}" style="color: white;" name="vendorsfax" onclick="vendorsphone_number()" onmouseout="vendorsfax_number()" id="vendorsfx"> 
+                                    <label for="" id="vendorsfax_label"></label>     
+                                </div>
+                            </div>
+                            <script>
+                                 document.getElementById('vendorsfx').addEventListener('input', function() {
+          const faxInput = this.value;
+          const errorSpan = document.getElementById('vendorsfax_label');
+          
+          const faxPattern = /^[0-9]{7}$/;
+          
+          if (faxPattern.test(faxInput)) {
+              errorSpan.textContent = 'Valid fax number';
+              errorSpan.classList.remove('text-danger');
+              errorSpan.classList.add('text-success');
+          } else {
+              errorSpan.textContent = 'Fax number must be exactly 7 digits';
+              errorSpan.classList.remove('text-success');
+              errorSpan.classList.add('text-danger');
+          }
+      });
+                            </script>
+  
                           </div>
                       </div>
                   </div>
@@ -2317,6 +2524,19 @@ $('#vendormphone').on('input', function() {
 });
 
        // GST Number Check End 
+
+       function filtervendor() {
+    var options = $('#vend_drop').children();
+    var search_text = $("#vendor").val().toLowerCase();
+    options.each(function() {
+        if ($(this).text().toLowerCase().includes(search_text)) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
       
      
        $(document).on("click", "#vendorPaymentTermSave", function() {

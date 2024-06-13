@@ -715,7 +715,7 @@ def create_expense(request):
             last_expense_number = last_expense.expense_number
             match = re.search(r'(\d+)$', last_expense_number)
             if match:
-                expense_no = int(match.group(1))
+                expense_no = int(match.group(1))+1
                 next_expense_number = f'EXP{str(expense_no).zfill(3)}'
             else:
                 next_expense_number = 'EXP001'
@@ -742,19 +742,47 @@ def create_expense(request):
         return render(request,'zohomodules/expense/creation expense.html',{'details':dash_details,'allmodules': allmodules,'log_details':log_details,'c': customers, 'v' : vendor, 'a':account, 'b':bank,'acc':acc, 'p': comp_payment_terms, 'price':  price_lists, 'last_expense_number': next_expense_number,'next_ref_number': next_ref_number, 'bank_account_number': bank_account_number,}) 
     else:
         return redirect('/') 
+    
 
 def check_expense_number(request):
-    expense_number = request.GET.get('expense_number', None)
-    log_id = request.session.get('login_id')
-    exists = False
-    
-    if log_id and expense_number:
-        log_details = LoginDetails.objects.get(id=log_id)
-        exists = Expense.objects.filter(expense_number=expense_number, login_details=log_details).exists()
-    
-    return JsonResponse({'exists': exists})         
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method.'})
 
+    data = json.loads(request.body)
+    expense_number = data.get('expense_number')
 
+    if not expense_number or not re.match(r'^EXP\d+$', expense_number):
+        return JsonResponse({'exists': False, 'error': 'Invalid expense number format.'})
+
+    expense_num_digits = int(expense_number[3:])  # Assuming expense number is in the format "EXP001"
+
+    # Get the company details from the session
+    if 'login_id' not in request.session:
+        return JsonResponse({'error': 'User not logged in.'})
+
+    log_id = request.session['login_id']
+    log_details = LoginDetails.objects.get(id=log_id)
+    
+    if log_details.user_type == 'Staff':
+        dash_details = StaffDetails.objects.get(login_details=log_details)
+        comp_details = CompanyDetails.objects.get(id=dash_details.company.id)
+    else:
+        comp_details = CompanyDetails.objects.get(login_details=log_details)
+
+    company_id = comp_details.id
+
+    # Check if the expense number already exists for this company
+    if Expense.objects.filter(expense_number=expense_number, company_id=company_id).exists():
+        return JsonResponse({'exists': True})
+
+    # Get the last expense number for this company from the database
+    last_expense = Expense.objects.filter(company_id=company_id).order_by('-id').first()
+    last_expense_number = int(last_expense.expense_number[3:]) if last_expense else 0
+
+    # Check if the expense number is continuous
+    is_continuous = (expense_num_digits == last_expense_number + 1)
+    
+    return JsonResponse({'exists': False, 'is_continuous': is_continuous})
 from django.http import Http404
 
 def expense_overview(request,expense_id):
@@ -892,72 +920,125 @@ def create_expense1(request):
 
      
 
-def edit_expense(request,pk):
+def edit_expense(request, pk):
     if 'login_id' in request.session:
         if request.session.has_key('login_id'):
             log_id = request.session['login_id']
-           
         else:
             return redirect('/')
-    
-        log_details= LoginDetails.objects.get(id=log_id)
-        if log_details.user_type=='Staff':
+
+        log_details = LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Staff':
             dash_details = StaffDetails.objects.get(login_details=log_details)
-            comp_details=CompanyDetails.objects.get(id=dash_details.company.id)
-
-        else:    
+            comp_details = CompanyDetails.objects.get(id=dash_details.company.id)
+        else:
             dash_details = CompanyDetails.objects.get(login_details=log_details)
-            comp_details=CompanyDetails.objects.get(login_details=log_details)
+            comp_details = CompanyDetails.objects.get(login_details=log_details)
 
-            
-        allmodules= ZohoModules.objects.get(company=comp_details,status='New')
-        
-        edit=Expense.objects.get(id=pk)
-        customers = Customer.objects.all()
-        vendor=Vendor.objects.all()
+        allmodules = ZohoModules.objects.get(company=comp_details, status='New')
+        edit = Expense.objects.get(id=pk)
+        customers = Customer.objects.filter(company=comp_details)
+        vendors = Vendor.objects.filter(company=comp_details)
+        bank = Banking.objects.filter(company=comp_details)
+        acc = Chart_of_Accounts.objects.filter(account_type='Expense')
 
-       
-        return render(request,'zohomodules/expense/editexpense.html',{'details':dash_details,'allmodules': allmodules,'log_details':log_details,'edit':edit,'c': customers, 'v' : vendor}) 
+        return render(request, 'zohomodules/expense/editexpense.html', {
+            'details': dash_details,
+            'allmodules': allmodules,
+            'log_details': log_details,
+            'edit': edit,
+            'c': customers,
+            'v': vendors,
+            'account': acc,
+            'bank':bank
+        })
     else:
-        return redirect('/')  
+        return redirect('/')
 
 
 
 def edit_expense1(request, pk):
-    
-     #x = CustomUser.objects.get(id=pk)
-     edit=Expense.objects.get(id=pk)
-    
-    # edit=Expense.objects.all()
-     if request.method == 'POST':
-        edit.date = request.POST.get('date')
-        edit.account = request.POST.get('account')
-        edit.expense_type = request.POST.get('expense_type')
-        edit.hsn_code = request.POST.get('hsn_code')
-        edit.sac_code = request.POST.get('sac_code')
-        edit.expense_number = request.POST.get('expense_number')
-        edit.reference_number = request.POST.get('referense_number')
-        edit.amount = request.POST.get('amount')
-        edit.tax_rate = request.POST.get('tax_rate')
-        edit.payment_type = request.POST.get('payment_type')
-        edit.vendor_name = request.POST.get('vendor_name')
-        edit.vendor_email = request.POST.get('vendor_email')
-        edit.vendor_gstin = request.POST.get('vendor_gstin')
-        edit.vendor_gst_type = request.POST.get('vendor_gst_type')
-        edit.vendor_source_of_supply = request.POST.get('vendor_source_of_supply')
-        edit.vendor_billing_address = request.POST.get('vendor_billing_address')
-        edit.customer_name = request.POST.get('customer_name')
-        edit.customer_email = request.POST.get('customer_email')
-        edit.customer_gstin = request.POST.get('customer_gstin')
-        edit.customer_gst_type = request.POST.get('customer_gst_type')
-        edit.customer_price_of_supply = request.POST.get('customer_price_of_supply')
-        edit.customer_billing_address = request.POST.get('customer_billing_address')
-        edit.note = request.POST.get('note')
+    edit = get_object_or_404(Expense, id=pk)
+
+    if request.method == 'POST':
+        log_id = request.session['login_id']
+        log_details = get_object_or_404(LoginDetails, id=log_id)
+
+        if log_details.user_type == 'Company':
+            cmp = get_object_or_404(CompanyDetails, login_details=log_details)
+        else:
+            staff_details = get_object_or_404(StaffDetails, login_details=log_details)
+            cmp = staff_details.company
+
+        # Getting the POST data safely
+        date_value = request.POST.get('date')
+        account = request.POST.get('account')
+        expense_type = request.POST.get('expense_type')
+        hsn_code = request.POST.get('hsn_code')
+        sac_code = request.POST.get('sac_code')
+        expense_number = request.POST.get('expense_number')
+        reference_number = request.POST.get('reference_number')
+        amount = request.POST.get('amount')
+        tax_rate = request.POST.get('tax_rate')
+        payment_type = request.POST.get('payment_type')
+        check_no = request.POST.get('check_no') if payment_type == 'Cheque' else None
+        upi_id = request.POST.get('upi_id') if payment_type == 'UPI' else None
+        bank_acc_no = request.POST.get('acc_no') if payment_type not in ['cash', 'Cheque', 'UPI'] else None
+        vendor_name = request.POST.get('vendor_name')
+        vendor_email = request.POST.get('vendor_email')
+        vendor_gstin = request.POST.get('vendor_gstin')
+        vendor_gst_type = request.POST.get('vendor_gst_type')
+        vendor_source_of_supply = request.POST.get('vendor_source_of_supply')
+        vendor_billing_address = request.POST.get('vendor_billing_address')
+        customer_name = request.POST.get('customer_name')
+        customer_email = request.POST.get('customer_email')
+        customer_gstin = request.POST.get('customer_gstin')
+        customer_gst_type = request.POST.get('customer_gst_type')
+        customer_price_of_supply = request.POST.get('customer_price_of_supply')
+        customer_billing_address = request.POST.get('customer_billing_address')
+        note = request.POST.get('note')
+
+        # Updating the expense object
+        edit.date = date_value
+        edit.account = account
+        edit.expense_type = expense_type
+        edit.hsn_code = hsn_code
+        edit.sac_code = sac_code
+        edit.expense_number = expense_number
+        edit.reference_number = reference_number
+        edit.amount = amount
+        edit.tax_rate = tax_rate
+        edit.payment_type = payment_type
+        edit.checkno = check_no
+        edit.upi = upi_id
+        edit.bankaccno = bank_acc_no
+        edit.vendor_name = vendor_name
+        edit.vendor_email = vendor_email
+        edit.vendor_gstin = vendor_gstin
+        edit.vendor_gst_type = vendor_gst_type
+        edit.vendor_source_of_supply = vendor_source_of_supply
+        edit.vendor_billing_address = vendor_billing_address
+        edit.customer_name = customer_name
+        edit.customer_email = customer_email
+        edit.customer_gstin = customer_gstin
+        edit.customer_gst_type = customer_gst_type
+        edit.customer_price_of_supply = customer_price_of_supply
+        edit.customer_billing_address = customer_billing_address
+        edit.note = note
         edit.save()
 
-        return redirect('expense')  # Redirect to success URL
-     
-     return render(request,'zohomodules/expense/editexpense.html',{'edit':edit} )  
+        # Creating an ExpenseHistory object
+        ExpenseHistory.objects.create(
+            company=cmp,
+            logindetails=log_details,
+            expense=edit,
+            Date=date.today(),
+            action='Edited'
+        )
+
+        return redirect(reverse('expense_overview', args=[edit.id]))
+
+    return render(request, 'zohomodules/expense/editexpense.html', {'edit': edit})
 
 def expense_status(request, pv):                                                                #new by tinto mt
     
@@ -1539,7 +1620,17 @@ def newVendorAjax(request):
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def get_vendor_data(request):
-    vendors = Vendor.objects.all().values('id', 'title', 'first_name', 'last_name')
+
+    if 'login_id' in request.session:
+        log_id = request.session['login_id']
+        log_details= LoginDetails.objects.get(id=log_id)
+        if log_details.user_type == 'Company':
+            com = CompanyDetails.objects.get(login_details = log_details)
+        else:
+            com = StaffDetails.objects.get(login_details = log_details).company
+    
+    
+    vendors = Vendor.objects.filter(company = com).values('id', 'title', 'first_name', 'last_name')
     vendor_list = list(vendors)  # Convert queryset to list
     
     # Debugging print statement
@@ -1548,7 +1639,7 @@ def get_vendor_data(request):
     return JsonResponse(vendor_list, safe=False)
 
 def downloadexpenseSampleImportFile(request):                                                                  #new by tinto mt
-    estimate_table_data = [['Expense Date','Expense Account','Expense Type','HSN','SAC','Expense Number','Referense Number','Amount','TaxRate','Payment Method','Vendor','Vendor Email','Vendor GST Type','Vendor GSTIN','Billing Address','Source Of Supply','Customer','Customer Email','Customer GST Type','Customer GSTIN','Customer Billing Address','Place Of Supply','Note']]      
+    estimate_table_data = [['Expense Date','Expense Account','Expense Type','HSN','SAC','Expense Number','Referense Number','Amount','TaxRate','Payment Method','Vendor','Vendor Email','Vendor GST Type','Vendor GSTIN','Billing Address','Source Of Supply','Customer','Customer Email','Customer GST Type','Customer GSTIN','Customer Billing Address','Place Of Supply','Note','status']]      
     wb = Workbook()
     sheet1 = wb.active
     sheet1.title = 'Sheet1'
@@ -1601,7 +1692,7 @@ def import_expense(request):
                     (expense_date, expense_account, expense_type, hsn, sac, expense_number, reference_number, amount, 
                      tax_rate, payment_method, vendor, vendor_email, vendor_gst_type, vendor_gstin, 
                      billing_address, source_of_supply, customer, customer_email, customer_gst_type, 
-                     customer_gstin, customer_billing_address, place_of_supply, note) = row
+                     customer_gstin, customer_billing_address, place_of_supply, note,status) = row
 
                     # Convert date from string to datetime object if needed
                     if isinstance(expense_date, str):
@@ -1633,7 +1724,10 @@ def import_expense(request):
                         customer_gstin=customer_gstin,
                         customer_billing_address=customer_billing_address,
                         customer_price_of_supply=place_of_supply,
-                        note=note
+                        note=note,
+                        status=status
+                        
+                        
                     )
 
                     # Create and save an ExpenseHistory object

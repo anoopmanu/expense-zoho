@@ -485,14 +485,47 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         <label for="expense_number" class="col-md-3 p-3 labels">Expense Number</label>
                         <div class="col-md-6 p-3">
                             <input type="text" class="form-control" id="expense_number" name="expense_number" value="" placeholder="{{ last_expense_number }}">
-                            <div id="expense_number_message"></div>
+                            <div id="expense_number_message" style="display: block; color: red;"></div>
                         </div>
                     </div>
+                    
+                    <script>
+                        $(document).ready(function() {
+                            $('#expense_number').on('blur', function() {
+                                var expense_number = $('#expense_number').val();
+                                var csrftoken = $("[name=csrfmiddlewaretoken]").val();  // Retrieve CSRF token from the page
+                                $.ajax({
+                                    url: '{% url "check_expense_number" %}',
+                                    type: 'POST',
+                                    headers: { "X-CSRFToken": csrftoken },  // Include CSRF token in headers
+                                    data: JSON.stringify({ 'expense_number': expense_number }),
+                                    contentType: 'application/json',
+                                    success: function(response) {
+                                        var messageDiv = $('#expense_number_message');
+                                        messageDiv.empty();
+                                        if (response.exists) {
+                                            messageDiv.text('Expense number already exists.');
+                                        } else if (!response.is_continuous) {
+                                            messageDiv.text('Expense number is not continuous.');
+                                        }
+                                    },
+                                    error: function() {
+                                        $('#expense_number_message').text('Error checking expense number.');
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                    
+                    
+                    
+                    
+                    
                 
                     <div class="row">
                         <label for="reference_number" class="col-md-3 p-3 labels">Reference Number</label>
                         <div class="col-md-6 p-3">
-                            <input type="text" class="form-control" id="reference_number" value="{{ next_ref_number }}" name="reference_number">
+                            <input type="text" class="form-control" id="reference_number" value="{{ next_ref_number }}" name="reference_number" readonly>
                         </div>
                     </div>
                    
@@ -534,7 +567,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                                 <option value="Cheque">Cheque</option>
                                 <option value="UPI">UPI</option>
                                 {% for i in b %}
-                                <option value="{{ i.bnk_name }}">{{ i.bnk_name }}</option>
+                                <option value="{{ i.bnk_name }}-{{ i.account_number }}"> 
+                                    {{ i.bnk_name }} - XXXXXXXX{{ i.bnk_acno | slice:"8:" }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -557,7 +592,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                     <div class="row dynamic-row" id="acc_no_row">
                         <label for="acc_no" class="col-md-3 p-3 labels">Ac/Number</label>
                         <div class="col-md-6 p-3">
-                            <input type="text" class="form-control" id="acc_no" name="acc_no" value="{{ bank_account_number }}">
+                            {% for i in b %}
+                            <input type="text" class="form-control" id="acc_no" name="acc_no" value="{{ i.bnk_acno }}">
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -618,30 +655,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         }
                     });
                 
-                    // Event listener for checking expense number
-                    document.addEventListener('DOMContentLoaded', function() {
-                        document.getElementById('expense_number').addEventListener('blur', function() {
-                            var expenseNumber = this.value;
-                            fetch("{% url 'check_expense_number' %}", {
-                                method: "GET",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({
-                                    'expense_number': expenseNumber
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.exists) {
-                                    document.getElementById('expense_number_message').textContent = 'Expense number already exists.';
-                                    document.getElementById('expense_number_message').style.color = 'red';
-                                } else {
-                                    document.getElementById('expense_number_message').textContent = '';
-                                }
-                            });
-                        });
-                    });
+                  
                 
                     // Function to show relevant fields based on payment type
                     function showFields() {
@@ -666,68 +680,68 @@ input[type="date"]::-webkit-calendar-picker-indicator {
               
                
                 
-                <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
-                <hr class="text-warning">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="" class="labels">Vendor</label>
-                        <br>
-                        <span class="text-danger" id="vendErr"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="hidden" name="vendorId" id="vendorId" value="">
-                        <div class="d-flex">
-                            <div class="w-100">
-                                <div class="p-0 border-0 bg-none position-relative drop-box">
-                                    <input required type="text" id="vendor" value="" name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
-                                    <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="vend_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
-                                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('', '')">Select Vendor</li>
-                                        {% for cust in v %}
-                                        <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('{{ cust.id }}', this.innerHTML)">{{ cust.title }} {{ cust.first_name }} {{ cust.last_name }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            </div>
-                            <button type="button" data-toggle="modal" data-target="#newVendor" class="btn btn-outline-warning py-2 ms-1">+</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-2">
-                    <label for="" class="col-md-3 labels">Email</label>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control text-white bg-black" id="vendorEmail" name="vendor_email" readonly>
-                    </div>
-                </div>
-                
-                <div class="row mt-2">
-                    <label for="" class="col-md-3 labels">GST Type</label>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control text-white bg-black" id="vendorGstType" name="vendor_gst_type" readonly>
-                    </div>
-                </div>
-                
-                <div class="row mt-2" id="customerGstInDisplay" style="display: flex;">
-                    <label for="" class="col-md-3 labels">GSTIN</label>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control text-white bg-black" id="vendorGSTIN" name="vendor_gstin" readonly>
-                    </div>
-                </div>
-                
-                <div class="row mt-2" id="billAddressSection">
-                    <label for="" class="col-md-3 labels">Billing Address</label>
-                    <div class="col-md-6">
-                        <textarea class="form-control text-white bg-black" name="vendor_billing_address" id="vbillAddress" rows="4" readonly></textarea>
-                    </div>
-                </div>
-                
-
-<div class="row mt-2">
-    <label for="" class="col-md-3 labels">Source of Supply</label>
-    <div class="col-md-6">
-        <input hidden value="{{cmp.state}}" id="cmpstate">
-        <select name="vendor_source_of_supply" id="sourceOfSupply" class="form-control bg-black text-white">
-            <option value="" selected>Select Place of Supply</option>
+              <h5 class="mb-0 text-uppercase text-right" style="color: white; font-weight: bolder;">Vendor &nbsp; Details</h5>
+              <hr class="text-warning">
+              <div class="row">
+                  <div class="col-md-3">
+                      <label for="" class="labels">Vendor</label>
+                      <br>
+                      <span class="text-danger" id="vendErr"></span>
+                  </div>
+                  <div class="col-md-6">
+                      <input type="hidden" name="vendorId" id="vendorId" value="">
+                      <div class="d-flex">
+                          <div class="w-100">
+                              <div class="p-0 border-0 bg-none position-relative drop-box">
+                                  <input  type="text" id="vendor" value="" name="vendor_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filtervendor()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Vendor.." autocomplete="off">
+                                  <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="vend_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
+                                      <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('', '')">Select Vendor</li>
+                                      {% for cust in v %}
+                                      <li class="dropdown-item customers-options text-white" onclick="getvendorDetails('{{ cust.id }}', this.innerHTML)">{{ cust.title }} {{ cust.first_name }} {{ cust.last_name }}</li>
+                                      {% endfor %}
+                                  </ul>
+                              </div>
+                          </div>
+                          <button type="button" data-toggle="modal" data-target="#newVendor" class="btn btn-outline-warning py-2 ms-1">+</button>
+                      </div>
+                  </div>
+              </div>
+      
+              <div class="row mt-2">
+                  <label for="" class="col-md-3 labels">Email</label>
+                  <div class="col-md-6">
+                      <input type="text" class="form-control text-white bg-black" id="vendorEmail" name="vendor_email" readonly>
+                  </div>
+              </div>
+      
+              <div class="row mt-2">
+                  <label for="" class="col-md-3 labels">GST Type</label>
+                  <div class="col-md-6">
+                      <input type="text" class="form-control text-white bg-black" id="vendorGstType" name="vendor_gst_type" readonly>
+                  </div>
+              </div>
+      
+              <div class="row mt-2" id="vendorGstInDisplay" style="display: flex;">
+                  <label for="" class="col-md-3 labels">GSTIN</label>
+                  <div class="col-md-6">
+                      <input type="text" class="form-control text-white bg-black" id="vendorGSTIN" name="vendor_gstin" readonly>
+                  </div>
+              </div>
+      
+              <div class="row mt-2" id="vbillAddressSection">
+                  <label for="" class="col-md-3 labels">Billing Address</label>
+                  <div class="col-md-6">
+                      <textarea class="form-control text-white bg-black" name="vendor_billing_address" id="vbillAddress" rows="4" readonly></textarea>
+                  </div>
+              </div>
+      
+              <div class="row mt-2" id="sourceOfSupplySection">
+                  <label for="" class="col-md-3 labels">Source of Supply</label>
+                  <div class="col-md-6">
+                      <input hidden value="{{cmp.state}}" id="cmpstate">
+                      <select name="vendor_source_of_supply" id="sourceOfSupply" class="form-control bg-black text-white">
+                          <option value="" selected>Select Place of Supply</option>
+      
             <option value="[AN]-Andaman And Nicobar Islands">[AN]-Andaman And Nicobar Islands</option>
             <option value="[AD]-Andhra Pradesh">[AD]-Andhra Pradesh</option>
             <option value="[AR]-Arunachal Pradesh">[AR]-Arunachal Pradesh	</option> 
@@ -784,7 +798,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 
                 <div class="row mt-2">
                     <div class="col-md-3">
-                        <label for="" class="labels">Customer</label>
+                        <label for="customer" class="labels">Customer</label>
                         <br>
                         <span class="text-danger" id="custErr"></span>
                     </div>
@@ -793,7 +807,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                         <div class="d-flex">
                             <div class="w-100">
                                 <div class="p-0 border-0 bg-none position-relative drop-box">
-                                    <input required type="text" id="customer" value="" name="customer_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filterCustomers()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Customer.." autocomplete="off">
+                                    <input  type="text" id="customer" value="" name="customer_name" class="dropdown-toggle form-control text-white customers-display" onkeyup="filterCustomers()" data-bs-toggle="dropdown" aria-expanded="false" placeholder="Select Customer.." autocomplete="off">
                                     <ul class="dropdown-menu w-100 customers-available position-absolute bg-black text-white" id="cust_drop" style="overflow-y: auto; height: fit-content; max-height: 40vh; border: 1px solid rgb(245, 242, 242);">
                                         <li class="dropdown-item customers-options text-white" onclick="getCustomerDetails('', '')">Select Customer</li>
                                         {% for cust in c %}
@@ -808,35 +822,36 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 </div>
                 
                 <div class="row mt-2">
-                    <label for="" class="col-md-3 labels">Email</label>
+                    <label for="customerEmail" class="col-md-3 labels">Email</label>
                     <div class="col-md-6">
                         <input type="text" class="form-control text-white bg-black" id="customerEmail" name="customer_email" readonly>
                     </div>
                 </div>
                 
                 <div class="row mt-2">
-                    <label for="" class="col-md-3 labels">GST Type</label>
+                    <label for="vendorGstType" class="col-md-3 labels">GST Type</label>
                     <div class="col-md-6">
                         <input type="text" class="form-control text-white bg-black" id="customerGstType" name="customer_gst_type" readonly>
                     </div>
                 </div>
                 
-                <div class="row mt-2" id="customerGstInDisplay" style="display: flex;">
-                    <label for="" class="col-md-3 labels">GSTIN</label>
+                <div class="row mt-2" id="customerGstInDisplay" >
+                    <label for="customerGSTIN" class="col-md-3 labels">GSTIN</label>
                     <div class="col-md-6">
                         <input type="text" class="form-control text-white bg-black" id="customerGSTIN" name="customer_gstin" readonly>
                     </div>
                 </div>
                 
                 <div class="row mt-2" id="billAddressSection">
-                    <label for="" class="col-md-3 labels">Billing Address</label>
+                    <label for="billAddress" class="col-md-3 labels">Billing Address</label>
                     <div class="col-md-6">
                         <textarea class="form-control text-white bg-black" name="customer_billing_address" id="billAddress" rows="4" readonly></textarea>
                     </div>
                 </div>
                 
+                
                 <div class="row mt-2">
-                    <label for="" class="col-md-3 labels">Place of Supply</label>
+                    <label for="placeOfSupply" class="col-md-3 labels">Place of Supply</label>
                     <div class="col-md-6">
                         <input hidden value="{{cmp.state}}" id="cmpstate">
                         <select name="customer_price_of_supply" id="placeOfSupply" class="form-control bg-black text-white">
@@ -915,12 +930,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                 
 
                 <br>
+                <script>
+                    document.getElementById("save").addEventListener("click", function() {
+                        // Perform actions to save data
+                        alert("Data saved!");
+                    });
+                    
+                    document.getElementById("saveDraft").addEventListener("click", function() {
+                        // Perform actions to save data as draft
+                        alert("Draft saved!");
+                    });
+                    
+                    function cancel() {
+                        // Redirect to expense page
+                        window.location.href = "{% url 'expense' %}";
+                    }
+                    </script>
+                    
                 
                 <div class="mt-4">
-                    <input type="submit" class="btn save_btn" style="background-color: chocolate; color: white;" value="SAVE"  id="save">
+                    <input type="submit" class="btn save_btn" style="background-color: chocolate; color: white;" value="SAVE"  id="save" data-status="save">
                     <input class="btn save_btn" style="background-color: chocolate; color: white;" type="submit" value="SAVE AS DRAFT" id="saveDraft">
-                    <input class="btn save_btn" style="background-color: chocolate; color: white;" type="reset" onclick="window.location.href=`{% url 'expense' %}`" value="CANCEL" id="cancel">
-                  </div>
+                    <input class="btn save_btn" style="background-color: chocolate; color: white;" type="reset" onclick="cancel()" value="CANCEL" id="cancel">
+                </div>
             </form>
         </div>
     </div>
@@ -1303,14 +1335,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                                     const phoneInput = this.value;
                                     const errorSpan = document.getElementById('vendorbphone_label');
                                 
-                                    const phonePattern = /^[0-9]{7}$/;
+                                    const phonePattern = /^[0-9]{10}$/;
                                 
                                     if (phonePattern.test(phoneInput)) {
                                         errorSpan.textContent = 'Valid phone number';
                                         errorSpan.classList.remove('text-danger');
                                         errorSpan.classList.add('text-success');
                                     } else {
-                                        errorSpan.textContent = 'Phone number must be exactly 7 digits';
+                                        errorSpan.textContent = 'Phone number must be exactly 10 digits';
                                         errorSpan.classList.remove('text-success');
                                         errorSpan.classList.add('text-danger');
                                     }
@@ -1405,6 +1437,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                                         <span id="vendorsphone_label" class="mt-2 text-danger" style="font-size: 10px;"></span >
                                   </div>
                               </div>
+                              <script>
+                                document.getElementById('vendorsphone_num').addEventListener('input', function() {
+        const phoneInput = this.value;
+        const errorSpan = document.getElementById('vendorsphone_label');
+        
+        const phonePattern = /^[0-9]{10}$/;
+        
+        if (phonePattern.test(phoneInput)) {
+            errorSpan.textContent = 'Valid phone number';
+            errorSpan.classList.remove('text-danger');
+            errorSpan.classList.add('text-success');
+        } else {
+            errorSpan.textContent = 'Phone number must be exactly 10 digits';
+            errorSpan.classList.remove('text-success');
+            errorSpan.classList.add('text-danger');
+        }
+    });
+                              </script>
                               
                                 
                              
@@ -1415,6 +1465,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
                                       <label for="" id="vendorsfax_label"></label>     
                                   </div>
                               </div>
+                              <script>
+                                   document.getElementById('vendorsfx').addEventListener('input', function() {
+            const faxInput = this.value;
+            const errorSpan = document.getElementById('vendorsfax_label');
+            
+            const faxPattern = /^[0-9]{7}$/;
+            
+            if (faxPattern.test(faxInput)) {
+                errorSpan.textContent = 'Valid fax number';
+                errorSpan.classList.remove('text-danger');
+                errorSpan.classList.add('text-success');
+            } else {
+                errorSpan.textContent = 'Fax number must be exactly 7 digits';
+                errorSpan.classList.remove('text-success');
+                errorSpan.classList.add('text-danger');
+            }
+        });
+                              </script>
     
                           </div>
                       </div>
@@ -2364,6 +2432,87 @@ input[type="date"]::-webkit-calendar-picker-indicator {
  
 
 <script>
+    function filtervendor() {
+    var options = $('#vend_drop').children();
+    var search_text = $("#vendor").val().toLowerCase();
+    options.each(function() {
+        if ($(this).text().toLowerCase().includes(search_text)) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
+
+
+function getvendorDetails(vendId, name) {
+            $('#vendor').val(name);
+            console.log('name', name);
+            if ($('#vendor').val() != "") {
+                $('#vendErr').text('');
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'getvendorDetailsAjax' %}",
+                    data: {
+                        id: vendId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function(data) {
+                        console.log('AJAX-Response-->', data);
+                        document.getElementById('vendorId').value = data.idv;
+                        document.getElementById('vendorEmail').value = data.vemail; 
+                        document.getElementById('sourceOfSupply').value = data.vshipState;
+                        document.getElementById('vendorGstType').value = data.vgstType;
+                        document.getElementById('vendorGSTIN').value = data.vgstNo;
+
+                        // Handle Billing Address
+                        if (data.vstreet || data.vcity || data.vstate) {
+                            $('#vbillAddressSection').show();
+                            document.getElementById('vbillAddress').value = 
+                                (data.vstreet ? data.vstreet + ', ' : '') + 
+                                (data.vcity ? data.vcity + '\n' : '') + 
+                                (data.vstate ? data.vstate + '\n' : '') + 
+                                (data.vcountry ? data.vcountry + '\n' : '') + 
+                                (data.vpincode ? data.vpincode : '');
+                        } else {
+                            $('#vbillAddressSection').hide();
+                        }
+
+                        // Handle GSTIN
+                        if (data.vgstNo) {
+                            $('#vendorGstInDisplay').show();
+                        } else {
+                            $('#vendorGstInDisplay').hide();
+                        }
+
+                        // Handle Source of Supply
+                        if (data.vshipState) {
+                            $('#vendorsourceOfSupplySection').show();
+                        } else {
+                            $('#vendorsourceOfSupplySection').hide();
+                        }
+
+                        $('#applyPriceList').prop('checked', false); // Uncheck the applyPriceList checkbox
+                        refreshTax();
+                        checkPriceList();
+                    }
+                });
+            } else {
+                document.getElementById('vendorEmail').value = "";
+                document.getElementById('sourceOfSupply').value = "";
+                document.getElementById('vendorGstType').value = "";
+                document.getElementById('vbillAddress').value = "";
+                document.getElementById('vendorGSTIN').value = "";
+                $('#vendErr').text('Select a customer..');
+            }
+        }
+
+
+
+
+
+
+
     function filterCustomers() {
         var options = $('#cust_drop').children();
         var search_text = $("#customer").val().toLowerCase();
@@ -2377,94 +2526,63 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
     function getCustomerDetails(custId, name) {
-        $('#customer').val(name);
-        console.log('name', name);
-        if ($('#customer').val() != "") {
-            $('#custErr').text('');
-            $.ajax({
-                type: 'POST',
-                url: "{% url 'getCustomerDetailsAjax' %}",
-                data: {
-                    id: custId,
-                    csrfmiddlewaretoken: '{{ csrf_token }}',
-                },
-                success: function(data) {
-                    console.log('AJAX-Response-->', data);
-                    document.getElementById('customerId').value = data.id;
-                    document.getElementById('customerEmail').value = data.email;
-                    document.getElementById('placeOfSupply').value = data.shipState;
-                    document.getElementById('customerGstType').value = data.gstType;
-                    if (data.street == "" && data.city == "" && data.state == "") {
-                        $("#billAddressSection").hide();
-                    } else {
-                        $('#billAddressSection').show();
-                        document.getElementById('billAddress').value = data.street + ',' + data.city + '\n' + data.state + '\n' + data.country + '\n' + data.pincode;
-                    }
-                    if (data.gstin) {
-                        document.getElementById('customerGstInDisplay').style.display = 'flex';
-                        document.getElementById('customerGSTIN').value = data.gstNo;
-                    } else {
-                        document.getElementById('customerGstInDisplay').style.display = 'none';
-                        document.getElementById('customerGSTIN').value = '';
-                    }
-                    $('#applyPriceList').prop('checked') ? $('#applyPriceList').prop('checked', false) : $('#applyPriceList').prop('checked', false);
-                    refreshTax();
-                    checkPriceList();
-                }
-            });
-        } else {
-            document.getElementById('customerEmail').value = "";
-            document.getElementById('placeOfSupply').value = "";
-            document.getElementById('customerGstType').value = "";
-            document.getElementById('billAddress').value = "";
-            document.getElementById('customerGSTIN').value = "";
-            $('#custErr').text('Select a customer..');
-        }
-    }
-</script>
-<script>
-  function getvendorDetails(vendId, name) {
-    $('#vendor').val(name);
+    $('#customer').val(name);
     console.log('name', name);
-    if ($('#vendor').val() != "") {
-        $('#vendErr').text('');
+    if ($('#customer').val() != "") {
+        $('#custErr').text('');
         $.ajax({
             type: 'POST',
-            url: "{% url 'getvendorDetailsAjax' %}",
+            url: "{% url 'getCustomerDetailsAjax' %}",
             data: {
-                id: vendId,
+                id: custId,
                 csrfmiddlewaretoken: '{{ csrf_token }}',
             },
             success: function(data) {
                 console.log('AJAX-Response-->', data);
-                document.getElementById('vendorId').value = data.idv;
-                document.getElementById('vendorEmail').value = data.vemail; 
-                document.getElementById('sourceOfSupply').value = data.vshipState;
-                document.getElementById('vendorGstType').value = data.vgstType;
-                document.getElementById('vbillAddress').value = data.vstreet;
-                document.getElementById('vendorGSTIN').value = data.vgstNo;
+                $('#customerId').val(data.id);
+                $('#customerEmail').val(data.email);
+                $('#placeOfSupply').val(data.shipState);
+                $('#customerGstType').val(data.gstType);
+
+                // Always show the billing address section
+                $('#billAddressSection').show();
+                if (data.street || data.city || data.state) {
+                    $('#billAddress').val(data.street + ', ' + data.city + '\n' + data.state + '\n' + data.country + '\n' + data.pincode);
                
-                if (data.vstreet == "" && data.vcity == "" && data.vstate == "") {
-                    $("#vbillAddressSection").hide(); // Hide the billing address section if all address fields are empty
                 } else {
-                    $('#vbillAddressSection').show(); // Show the billing address section if any address field has a value
-                    document.getElementById('vbillAddress').value = data.vstreet + ',' + data.vcity + '\n' + data.vstate + '\n' + data.vcountry + '\n' + data.vpincode;
+                    $('#billAddressSection').hide();
+                    $('#billAddress').val('');
                 }
-               
-                $('#applyPriceList').prop('checked', false); // Uncheck the applyPriceList checkbox
+
+
+                if (data.gstin) {
+                    $('#customerGstInDisplay').show();
+                    $('#customerGSTIN').val(data.gstNo);
+                } else {
+                    $('#customerGstInDisplay').hide();
+                    $('#customerGSTIN').val('');
+                }
+
+                $('#applyPriceList').prop('checked', false);
                 refreshTax();
                 checkPriceList();
             }
         });
     } else {
-        document.getElementById('vendorEmail').value = "";
-        document.getElementById('sourceOfSupply').value = "";
-        document.getElementById('vendorGstType').value = "";
-        document.getElementById('vbillAddress').value = "";
-        document.getElementById('vendorGSTIN').value = "";
-        $('#vendErr').text('Select a customer..');
+        $('#customerEmail').val("");
+        $('#placeOfSupply').val("");
+        $('#customerGstType').val("");
+        $('#billAddress').val("");
+        $('#customerGSTIN').val("");
+        $('#billAddressSection').show(); // Always show the billing address section
+        $('#customerGstInDisplay').hide();
+        $('#custErr').text('Select a customer..');
     }
 }
+
+
+</script>
+<script>
 
 
 </script>
